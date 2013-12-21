@@ -35,6 +35,7 @@ func main() {
 	if renderers.RenderSystemListSize() != 1 {
 		panic(fmt.Sprintf("Failed to initalize RendererRenderSystem_GL"))
 	}
+	root.SetRenderSystem(renderers.RenderSystemListGet(0))
 	game_socket, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
         if err != nil {
                 panic(err)

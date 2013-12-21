@@ -1,8 +1,10 @@
 package main
 
 import ("fmt"
+	"os"
 	"github.com/fire/go-sdl2/sdl"
-	"github.com/op/go-nanomsg")
+	"github.com/op/go-nanomsg"
+	"github.com/fire/go-ogre3d")
 
 func main() {
 	fmt.Printf("Hello, game!\n")
@@ -17,7 +19,14 @@ func main() {
 	if window == nil {
 		panic(fmt.Sprintf("SDL_CreateWindow failed: %s\n", sdl.GetError()))
 	}
-	
+
+	root := ogre.NewRoot("", "", "ogre.log")
+	wd, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	root.LoadPlugin(wd  + "/../frameworks/RenderSystem_GL.framework")
+
 	game_socket, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
         if err != nil {
                 panic(err)

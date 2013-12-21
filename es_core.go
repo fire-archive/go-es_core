@@ -17,8 +17,13 @@ func main() {
 		600,
 		sdl.WINDOW_OPENGL | sdl.WINDOW_SHOWN)
 	if window == nil {
-		panic(fmt.Sprintf("SDL_CreateWindow failed: %s\n", sdl.GetError()))
+		panic(fmt.Sprintf("sdl.CreateWindow failed: %s\n", sdl.GetError()))
 	}
+	glcontext := sdl.GL_CreateContext(window)
+	if glcontext == nil {
+		panic(fmt.Sprintf("sdl.CreateContext failed: %s\n", sdl.GetError()))
+	}
+	// sdl.GetWindowWMInfo
 
 	root := ogre.NewRoot("", "", "ogre.log")
 	wd, err := os.Getwd()
@@ -26,7 +31,10 @@ func main() {
 		panic(err)
 	}
 	root.LoadPlugin(wd  + "/../frameworks/RenderSystem_GL.framework")
-
+	renderers := root.GetAvailableRenderers()
+	if renderers.RenderSystemListSize() != 1 {
+		panic(fmt.Sprintf("Failed to initalize RendererRenderSystem_GL"))
+	}
 	game_socket, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
         if err != nil {
                 panic(err)

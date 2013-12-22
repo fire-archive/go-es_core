@@ -2,7 +2,7 @@ package main
 
 import ("fmt"
 	"os"
-	"github.com/fire/go-sdl2/sdl"
+	"github.com/jackyb/go-sdl2/sdl"
 	"github.com/op/go-nanomsg"
 	"github.com/fire/go-ogre3d")
 
@@ -23,8 +23,12 @@ func main() {
 	if glcontext == nil {
 		panic(fmt.Sprintf("sdl.CreateContext failed: %s\n", sdl.GetError()))
 	}
-	// sdl.GetWindowWMInfo
-
+	var info sdl.SysWMInfo 
+	if !window.GetWMInfo(&info) {
+		panic(fmt.Sprintf("window.GetWMInfo failed.\n"))
+	}
+	// Parse and print info's version
+	// Parse and print info's SYSWM_TYPE
 	root := ogre.NewRoot("", "", "ogre.log")
 	wd, err := os.Getwd()
 	if err != nil {

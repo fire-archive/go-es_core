@@ -40,6 +40,14 @@ func main() {
 		panic(fmt.Sprintf("Failed to initalize RendererRenderSystem_GL"))
 	}
 	root.SetRenderSystem(renderers.RenderSystemListGet(0))
+	root.Initialise(false, "es_core::ogre")
+	// Adjust settings
+	// ...
+	params := ogre.CreateNameValuePairList()
+	params.AddPair("macAPI", "carbon")
+	renderWindow := root.CreateRenderWindow("es_core::ogre", 800, 600, false, *params)
+	renderWindow.IsClosed() // Delete me
+	
 	game_socket, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
         if err != nil {
                 panic(err)

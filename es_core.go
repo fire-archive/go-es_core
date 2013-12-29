@@ -2,6 +2,7 @@ package main
 
 import ("fmt"
 	"os"
+	"strconv"
 	"github.com/jackyb/go-sdl2/sdl"
 	"github.com/op/go-nanomsg"
 	"github.com/fire/go-ogre3d")
@@ -41,11 +42,14 @@ func main() {
 	}
 	root.SetRenderSystem(renderers.RenderSystemListGet(0))
 	root.Initialise(false, "es_core::ogre")
-	// Adjust settings
-	// ...
 	params := ogre.CreateNameValuePairList()
-	params.AddPair("macAPI", "carbon")
-	renderWindow := root.CreateRenderWindow("es_core::ogre", 800, 600, false, *params)
+	params.AddPair("externalGLControl", "1")
+	osxWindow := info.GetCocoaInfo()
+	windowString := strconv.FormatUint(uint64(*(*uint32)(osxWindow.Window)), 10)
+	params.AddPair("externalWindowHandle", windowString)
+	params.AddPair("macAPI", "cocoa")
+	params.AddPair("macAPICocoaUseNSView", "true")
+	renderWindow := root.CreateRenderWindow("es_core::ogre", 800, 600, false, params)
 	renderWindow.IsClosed() // Delete me
 	
 	game_socket, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)

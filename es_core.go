@@ -18,6 +18,7 @@ func main() {
 	if window == nil {
 		panic(fmt.Sprintf("sdl.CreateWindow failed: %s\n", sdl.GetError()))
 	}
+	defer sdl.Quit()
 	var info sdl.SysWMInfo 
 	if !window.GetWMInfo(&info) {
 		panic(fmt.Sprintf("window.GetWMInfo failed.\n"))
@@ -25,6 +26,7 @@ func main() {
 	// Parse and print info's version
 	// Parse and print info's SYSWM_TYPE
 	root := ogre.NewRoot("", "", "ogre.log")
+	defer root.Destroy()
 	wd, err := os.Getwd()
 	if err != nil {
 		panic(err)
@@ -83,4 +85,6 @@ func main() {
 
 	go gameThread()
 	go renderThread()
+
+	
 }

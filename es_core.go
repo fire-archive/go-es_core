@@ -86,7 +86,4 @@ func main() {
 	go gameThread()
 	go renderThread()
 
-	for ;; {
-		
-	}
 }

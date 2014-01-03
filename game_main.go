@@ -41,7 +41,4 @@ func gameThread() {
 
 	gameInit()
 	baseLine := sdl.GetTicks()
-	for ;; {
-		gameTick()
-	}
 }

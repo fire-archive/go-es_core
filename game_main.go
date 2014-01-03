@@ -1,6 +1,8 @@
 package main
 
-import ("github.com/op/go-nanomsg"
+import ("fmt"
+	"github.com/op/go-nanomsg"
+	"github.com/fire/go-sdl2/sdl"
 	)
 
 func gameThread() {
@@ -41,4 +43,5 @@ func gameThread() {
 
 	gameInit()
 	baseLine := sdl.GetTicks()
+	fmt.Printf("baseline: %d\n", baseLine)
 }

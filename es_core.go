@@ -3,7 +3,7 @@ package main
 import ("fmt"
 	"os"
 	"strconv"
-	"github.com/jackyb/go-sdl2/sdl"
+	"github.com/fire/go-sdl2/sdl"
 	"github.com/op/go-nanomsg"
 	"github.com/fire/go-ogre3d")
 

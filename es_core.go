@@ -45,7 +45,7 @@ func main() {
 	params.AddPair("parentWindowHandle", windowString)
 	
 	renderWindow := root.CreateRenderWindow("es_core::ogre", 800, 600, false, params)
-	renderWindow.IsClosed() // Delete me
+	renderWindow.SetVisible(true)
 	
 	game_socket, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
         if err != nil {

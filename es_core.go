@@ -16,13 +16,9 @@ func main() {
 		sdl.WINDOWPOS_UNDEFINED,
 		800,
 		600,
-		sdl.WINDOW_OPENGL | sdl.WINDOW_SHOWN)
+		sdl.WINDOW_SHOWN)
 	if window == nil {
 		panic(fmt.Sprintf("sdl.CreateWindow failed: %s\n", sdl.GetError()))
-	}
-	glcontext := sdl.GL_CreateContext(window)
-	if glcontext == nil {
-		panic(fmt.Sprintf("sdl.CreateContext failed: %s\n", sdl.GetError()))
 	}
 	var info sdl.SysWMInfo 
 	if !window.GetWMInfo(&info) {
@@ -43,12 +39,11 @@ func main() {
 	root.SetRenderSystem(renderers.RenderSystemListGet(0))
 	root.Initialise(false, "es_core::ogre")
 	params := ogre.CreateNameValuePairList()
-	params.AddPair("externalGLControl", "1")
+	params.AddPair("macAPI", "cocoa")
 	osxWindow := info.GetCocoaInfo()
 	windowString := strconv.FormatUint(uint64(*(*uint32)(osxWindow.Window)), 10)
-	params.AddPair("externalWindowHandle", windowString)
-	params.AddPair("macAPI", "cocoa")
-	params.AddPair("macAPICocoaUseNSView", "true")
+	params.AddPair("parentWindowHandle", windowString)
+	
 	renderWindow := root.CreateRenderWindow("es_core::ogre", 800, 600, false, params)
 	renderWindow.IsClosed() // Delete me
 	

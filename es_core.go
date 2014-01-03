@@ -40,8 +40,8 @@ func main() {
 	root.Initialise(false, "es_core::ogre")
 	params := ogre.CreateNameValuePairList()
 	params.AddPair("macAPI", "cocoa")
-	osxWindow := info.GetCocoaInfo()
-	windowString := strconv.FormatUint(uint64(*(*uint32)(osxWindow.Window)), 10)
+	cocoaInfo := info.GetCocoaInfo()
+	windowString := strconv.FormatUint(uint64(*(*uint32)(cocoaInfo.Window)), 10)
 	params.AddPair("parentWindowHandle", windowString)
 	
 	renderWindow := root.CreateRenderWindow("es_core::ogre", 800, 600, false, params)

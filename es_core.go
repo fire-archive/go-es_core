@@ -8,8 +8,6 @@ import ("fmt"
 	"github.com/fire/go-ogre3d")
 
 func main() {
-	fmt.Printf("Hello, game!\n")
-	
 	sdl.Init(sdl.INIT_EVERYTHING)
 	window := sdl.CreateWindow("es_core::SDL",
 		sdl.WINDOWPOS_UNDEFINED,

@@ -82,4 +82,7 @@ func main() {
         if err != nil {
                 panic(err)
         }
+
+	go gameThread()
+	go renderThread()
 }

@@ -51,7 +51,7 @@ func main() {
         if err != nil {
                 panic(err)
         }
-        _, err = game_socket.Connect("tcp://127.0.0.1:60206")
+        _, err = game_socket.Bind("tcp://127.0.0.1:60206")
         if err != nil {
                 panic(err)
         }
@@ -60,7 +60,7 @@ func main() {
 	if err != nil {
                 panic(err)
         }
-        _, err = render_socket.Connect("tcp://127.0.0.1:60207")
+        _, err = render_socket.Bind("tcp://127.0.0.1:60207")
         if err != nil {
                 panic(err)
         }
@@ -69,7 +69,7 @@ func main() {
         if err != nil {
                 panic(err)
         }
-        _, err = input_pub.Connect("tcp://127.0.0.1:60208")
+        _, err = input_pub.Bind("tcp://127.0.0.1:60208")
         if err != nil {
                 panic(err)
         }
@@ -78,7 +78,7 @@ func main() {
         if err != nil {
                 panic(err)
         }
-        _, err = input_pull.Connect("tcp://127.0.0.1:60209")
+        _, err = input_pull.Bind("tcp://127.0.0.1:60209")
         if err != nil {
                 panic(err)
         }
@@ -86,5 +86,7 @@ func main() {
 	go gameThread()
 	go renderThread()
 
-	
+	for ;; {
+		
+	}
 }

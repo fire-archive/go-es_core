@@ -55,4 +55,31 @@ func main() {
         if err != nil {
                 panic(err)
         }
+	
+	render_socket, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
+	if err != nil {
+                panic(err)
+        }
+        _, err = render_socket.Connect("tcp://127.0.0.1:60207")
+        if err != nil {
+                panic(err)
+        }
+
+	input_pub, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.PUB)
+        if err != nil {
+                panic(err)
+        }
+        _, err = input_pub.Connect("tcp://127.0.0.1:60208")
+        if err != nil {
+                panic(err)
+        }
+
+	input_pull, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.PULL)
+        if err != nil {
+                panic(err)
+        }
+        _, err = input_pull.Connect("tcp://127.0.0.1:60209")
+        if err != nil {
+                panic(err)
+        }
 }

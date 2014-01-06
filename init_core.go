@@ -48,38 +48,38 @@ func InitCore() {
 	renderWindow := root.CreateRenderWindow("es_core::ogre", 800, 600, false, params)
 	renderWindow.SetVisible(true)
 	
-	game_socket, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
+	gameSocket, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
         if err != nil {
                 panic(err)
         }
-        _, err = game_socket.Bind("tcp://127.0.0.1:60206")
+        _, err = gameSocket.Bind("tcp://127.0.0.1:60206")
         if err != nil {
                 panic(err)
         }
 	
-	render_socket, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
+	renderSocket, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
 	if err != nil {
                 panic(err)
         }
-        _, err = render_socket.Bind("tcp://127.0.0.1:60207")
+        _, err = renderSocket.Bind("tcp://127.0.0.1:60207")
         if err != nil {
                 panic(err)
         }
 
-	input_pub, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.PUB)
+	inputPub, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.PUB)
         if err != nil {
                 panic(err)
         }
-        _, err = input_pub.Bind("tcp://127.0.0.1:60208")
+        _, err = inputPub.Bind("tcp://127.0.0.1:60208")
         if err != nil {
                 panic(err)
         }
 
-	input_pull, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.PULL)
+	inputPull, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.PULL)
         if err != nil {
                 panic(err)
         }
-        _, err = input_pull.Bind("tcp://127.0.0.1:60209")
+        _, err = inputPull.Bind("tcp://127.0.0.1:60209")
         if err != nil {
                 panic(err)
         }

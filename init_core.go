@@ -84,7 +84,11 @@ func InitCore() {
                 panic(err)
         }
 	go gameThread()
-	var renderThreadParams RenderThreadParams 
+	var renderThreadParams RenderThreadParams
+	renderThreadParams.root = root
+	renderThreadParams.window = window
+	renderThreadParams.ogreWindow = renderWindow
+	
 	go renderThread(renderThreadParams)
 
 }

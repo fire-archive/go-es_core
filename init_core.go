@@ -1,4 +1,5 @@
-package main
+
+package core
 
 import ("fmt"
 	"os"
@@ -7,7 +8,7 @@ import ("fmt"
 	"github.com/op/go-nanomsg"
 	"github.com/fire/go-ogre3d")
 
-func main() {
+func InitCore() {
 	sdl.Init(sdl.INIT_EVERYTHING)
 	window := sdl.CreateWindow("es_core::SDL",
 		sdl.WINDOWPOS_UNDEFINED,

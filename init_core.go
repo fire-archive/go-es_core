@@ -4,7 +4,7 @@ package core
 import ("fmt"
 	"os"
 	"strconv"
-	"github.com/fire/go-sdl2/sdl"
+	"github.com/jackyb/go-sdl2/sdl"
 	"github.com/op/go-nanomsg"
 	"github.com/fire/go-ogre3d")
 
@@ -83,8 +83,8 @@ func InitCore() {
         if err != nil {
                 panic(err)
         }
-
 	go gameThread()
-	go renderThread()
+	var renderThreadParams RenderThreadParams 
+	go renderThread(renderThreadParams)
 
 }

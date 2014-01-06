@@ -1,7 +1,17 @@
 package core
 
-import "fmt"
+import ("fmt"
+	"github.com/jackyb/go-sdl2/sdl"
+	"github.com/fire/go-ogre3d")
 
-func renderThread() {
+type RenderThreadParams struct {
+	root ogre.Root
+	window sdl.Window
+	ogreWindow ogre.RenderWindow
+	argc int
+	argv *[]byte
+}
+
+func renderThread(_parms RenderThreadParams) {
 	fmt.Printf("Render Thread:\n")
 }

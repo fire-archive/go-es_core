@@ -5,6 +5,14 @@ import ("fmt"
 	"github.com/fire/go-sdl2/sdl"
 	)
 
+type GameThreadSockets struct {
+	controlSocket nanomsg.Socket
+	inputMouseSub nanomsg.Socket
+	inputKbSub nanomsg.Socket
+	inputPush nanomsg.Socket
+	renderSocket nanomsg.Socket
+}
+
 func gameThread() {
 	controlSocket, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
 	if err != nil {

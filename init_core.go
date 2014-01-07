@@ -8,6 +8,16 @@ import ("fmt"
 	"github.com/op/go-nanomsg"
 	"github.com/fire/go-ogre3d")
 
+type InputState struct {
+	yawSens float32
+	pitchSens float32
+	orientationFactor float32 // +1/-1 easy switch between look around and manipulate something
+	yaw float32 // degrees, modulo [-180,180] range
+	pitch float32 // degrees, clamped [-90,90] range
+	roll float32
+	// orientation ogre.Quaternion // current orientation
+}
+
 func InitCore() {
 	sdl.Init(sdl.INIT_EVERYTHING)
 	window := sdl.CreateWindow("es_core::SDL",
@@ -48,38 +58,38 @@ func InitCore() {
 	renderWindow := root.CreateRenderWindow("es_core::ogre", 800, 600, false, params)
 	renderWindow.SetVisible(true)
 	
-	gameSocket, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
+	nnGameSocket, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
         if err != nil {
                 panic(err)
         }
-        _, err = gameSocket.Bind("tcp://127.0.0.1:60206")
+        _, err = nnGameSocket.Bind("tcp://127.0.0.1:60206")
         if err != nil {
                 panic(err)
         }
 	
-	renderSocket, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
+	nnRenderSocket, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
 	if err != nil {
                 panic(err)
         }
-        _, err = renderSocket.Bind("tcp://127.0.0.1:60207")
+        _, err = nnRenderSocket.Bind("tcp://127.0.0.1:60207")
         if err != nil {
                 panic(err)
         }
 
-	inputPub, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.PUB)
+	nnInputPub, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.PUB)
         if err != nil {
                 panic(err)
         }
-        _, err = inputPub.Bind("tcp://127.0.0.1:60208")
+        _, err = nnInputPub.Bind("tcp://127.0.0.1:60208")
         if err != nil {
                 panic(err)
         }
 
-	inputPull, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.PULL)
+	nnInputPull, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.PULL)
         if err != nil {
                 panic(err)
         }
-        _, err = inputPull.Bind("tcp://127.0.0.1:60209")
+        _, err = nnInputPull.Bind("tcp://127.0.0.1:60209")
         if err != nil {
                 panic(err)
         }
@@ -91,4 +101,20 @@ func InitCore() {
 	
 	go renderThread(renderThreadParams)
 
+	window.SetGrab(true)
+	sdl.SetRelativeMouseMode(true)
+
+	shutdownRequested := false
+	var is InputState
+	is.yawSens = 0.1
+	is.yaw = 0.0
+	is.pitchSens = 0.1
+	is.pitch = 0.0
+	is.roll = 0.0
+	is.orientationFactor = -1.0 // Look around config
+
+	for !shutdownRequested {
+		var inputPull string
+		string, err := nnInputPull.RecvString()
+	}
 }

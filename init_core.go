@@ -6,7 +6,8 @@ import ("fmt"
 	"strconv"
 	"github.com/jackyb/go-sdl2/sdl"
 	"github.com/op/go-nanomsg"
-	"github.com/fire/go-ogre3d")
+	"github.com/fire/go-ogre3d"
+	"github.com/ugorji/go/codec")
 
 type InputState struct {
 	yawSens float32
@@ -113,8 +114,49 @@ func InitCore() {
 	is.roll = 0.0
 	is.orientationFactor = -1.0 // Look around config
 
+	// Msgpack
+	var (
+		v interface{} //Value to decode into
+		mh codec.MsgpackHandle
+	)
+	
 	for !shutdownRequested {
-		var inputPull string
-		string, err := nnInputPull.RecvString()
+		var b []byte
+		// We wait here.
+		b, err = nnInputPull.Recv(0)
+		fmt.Printf("Game push received:\n")
+		if err != nil {
+			fmt.Printf("%s\n", err)
+		}
+		dec := codec.NewDecoderBytes(b, &mh)
+		err = dec.Decode(&v)
+		if err != nil {
+			fmt.Printf("%s\n", err)
+		}
+
+		// poll for events before processing the request
+		// NOTE: this is how SDL builds the internal mouse and keyboard state
+		// TODO: done this way does not meet the objectives of smooth, frame independent mouse view control,
+		// Plus it throws some latency into the calling thread
+
+		var event sdl.Event
+		for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent {
+			switch t := event.(type) {
+			case *sdl.KeyDownEvent:
+				fmt.Printf("SDL keyboard event:\n")
+			case *sdl.KeyUpEvent:
+				fmt.Printf("SDL keyboard event:\n")
+				if t.Keysym.Scancode == sdl.SCANCODE_ESCAPE {
+					// Todo
+					sendShutdown(nnRenderSocket, nnGameSocket)
+					shutdownRequested = true
+				}
+			}
+		}
 	}
+}
+
+func sendShutdown (nnRenderSocket *nanomsg.Socket, nnGameSocket *nanomsg.Socket) {
+	fmt.Printf("Render socket shutdown.\n")
+	fmt.Printf("Game socket shutdown.\n")
 }

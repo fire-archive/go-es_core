@@ -2,7 +2,7 @@ package core
 
 import ("fmt"
 	"github.com/op/go-nanomsg"
-	"github.com/fire/go-sdl2/sdl"
+	"github.com/jackyb/go-sdl2/sdl"
 	)
 
 type GameThreadSockets struct {

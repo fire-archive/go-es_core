@@ -8,7 +8,8 @@ import ("fmt"
 	"github.com/op/go-nanomsg"
 	"github.com/fire/go-ogre3d"
 	"github.com/ugorji/go/codec"
-	"runtime")
+	"runtime"
+	"math")
 
 type InputState struct {
 	yawSens float32
@@ -166,6 +167,22 @@ func InitCore() {
 					sendShutdown(nnRenderSocket, nnGameSocket)
 					shutdownRequested = true
 				}
+			case *sdl.MouseMotionEvent:
+				// + when manipulating an object, - when doing a first person view .. needs to be configurable?
+				is.yaw += is.orientationFactor * is.yawSens * float32(t.XRel)
+				if is.yaw >= 0.0 {
+					is.yaw = float32(math.Mod(float64(is.yaw) + 180.0, 360.0) - 180.0)
+				} else {
+					is.yaw = float32(math.Mod(float64(is.yaw) - 180.0, 360.0) + 180.0)
+				}
+				// + when manipulating an object, - when doing a first person view .. needs to be configurable?
+				is.pitch += is.orientationFactor * is.pitchSens * float32(t.YRel)
+				if is.pitch > 90.0 {
+					is.pitch = 90.0
+				} else if ( is.pitch < -90.0 ) {
+					is.pitch = -90.0
+				}
+				// build a quaternion of the current orientation
 			}
 		}
 	}

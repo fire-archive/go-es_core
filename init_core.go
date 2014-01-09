@@ -7,7 +7,8 @@ import ("fmt"
 	"github.com/jackyb/go-sdl2/sdl"
 	"github.com/op/go-nanomsg"
 	"github.com/fire/go-ogre3d"
-	"github.com/ugorji/go/codec")
+	"github.com/ugorji/go/codec"
+	"runtime")
 
 type InputState struct {
 	yawSens float32
@@ -43,9 +44,16 @@ func InitCore() {
 	if err != nil {
 		panic(err)
 	}
-	root.LoadPlugin(wd  + "/../frameworks/RenderSystem_GL.framework")
+	if runtime.GOOS == "windows" {
+	root.LoadPlugin(wd  + "/RenderSystem_GL")
+		}
+	if runtime.GOOS == "darwin" {
+		root.LoadPlugin(wd  + "/../frameworks/RenderSystem_GL")
+	}
+				
 	renderers := root.GetAvailableRenderers()
 	if renderers.RenderSystemListSize() != 1 {
+		
 		panic(fmt.Sprintf("Failed to initalize RendererRenderSystem_GL"))
 	}
 	root.SetRenderSystem(renderers.RenderSystemListGet(0))

@@ -45,7 +45,7 @@ func InitCore() {
 		panic(err)
 	}
 	if runtime.GOOS == "windows" {
-	root.LoadPlugin(wd  + "/RenderSystem_GL")
+		root.LoadPlugin(wd  + "/RenderSystem_GL")
 		}
 	if runtime.GOOS == "darwin" {
 		root.LoadPlugin(wd  + "/../frameworks/RenderSystem_GL")
@@ -59,10 +59,17 @@ func InitCore() {
 	root.SetRenderSystem(renderers.RenderSystemListGet(0))
 	root.Initialise(false, "es_core::ogre")
 	params := ogre.CreateNameValuePairList()
-	params.AddPair("macAPI", "cocoa")
-	cocoaInfo := info.GetCocoaInfo()
-	windowString := strconv.FormatUint(uint64(*(*uint32)(cocoaInfo.Window)), 10)
-	params.AddPair("parentWindowHandle", windowString)
+	if runtime.GOOS == "windows" {
+		windowsInfo := info.GetWindowsInfo()
+		windowString := strconv.FormatUint(uint64(*(*uint32)(windowsInfo.Window)), 10)
+		params.AddPair("parentWindowHandle", windowString)
+	}
+	if runtime.GOOS == "darwin" {
+		params.AddPair("macAPI", "cocoa")
+		cocoaInfo := info.GetCocoaInfo()
+		windowString := strconv.FormatUint(uint64(*(*uint32)(cocoaInfo.Window)), 10)
+		params.AddPair("parentWindowHandle", windowString)
+	}
 	
 	renderWindow := root.CreateRenderWindow("es_core::ogre", 800, 600, false, params)
 //	renderWindow.SetVisible(true)

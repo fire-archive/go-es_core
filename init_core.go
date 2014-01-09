@@ -65,7 +65,7 @@ func InitCore() {
 	params.AddPair("parentWindowHandle", windowString)
 	
 	renderWindow := root.CreateRenderWindow("es_core::ogre", 800, 600, false, params)
-	renderWindow.SetVisible(true)
+//	renderWindow.SetVisible(true)
 	
 	nnGameSocket, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
         if err != nil {

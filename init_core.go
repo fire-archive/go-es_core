@@ -183,12 +183,18 @@ func InitCore() {
 					is.pitch = -90.0
 				}
 				// build a quaternion of the current orientation
+				var r ogre.Matrix3
+				r.FromEulerAnglesYXZ( degToRad(is.yaw), degToRad(is.pitch), degToRad(is.roll)) 
 			}
 		}
 	}
 }
 
-func sendShutdown (nnRenderSocket *nanomsg.Socket, nnGameSocket *nanomsg.Socket) {
+func degToRad(deg float32) float32 {
+	return deg * math.Pi / 180
+}
+
+func sendShutdown(nnRenderSocket *nanomsg.Socket, nnGameSocket *nanomsg.Socket) {
 	fmt.Printf("Render socket shutdown.\n")
 	fmt.Printf("Game socket shutdown.\n")
 }

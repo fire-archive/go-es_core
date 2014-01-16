@@ -18,7 +18,7 @@ type InputState struct {
 	yaw float32 // degrees, modulo [-180,180] range
 	pitch float32 // degrees, clamped [-90,90] range
 	roll float32
-	// orientation ogre.Quaternion // current orientation
+	orientation ogre.Quaternion // current orientation
 }
 
 func InitCore() {
@@ -137,14 +137,14 @@ func InitCore() {
 	)
 	
 	for !shutdownRequested {
-		var b []byte
+		var inputRequest []byte
 		// We wait here.
-		b, err = nnInputPull.Recv(0)
+		inputRequest, err = nnInputPull.Recv(0)
 		fmt.Printf("Game push received:\n")
 		if err != nil {
 			fmt.Printf("%s\n", err)
 		}
-		dec := codec.NewDecoderBytes(b, &mh)
+		dec := codec.NewDecoderBytes(inputRequest, &mh)
 		err = dec.Decode(&v)
 		if err != nil {
 			fmt.Printf("%s\n", err)
@@ -184,13 +184,24 @@ func InitCore() {
 				}
 				// build a quaternion of the current orientation
 				var r ogre.Matrix3
-				r.FromEulerAnglesYXZ( degToRad(is.yaw), degToRad(is.pitch), degToRad(is.roll)) 
+				r.FromEulerAnglesYXZ( deg2Rad(is.yaw), deg2Rad(is.pitch), deg2Rad(is.roll)) 
+				is.orientation.FromRotationMatrix(r)
+			case *sdl.MouseButtonEvent:
+				fmt.Printf("SDL mouse button event:\n")
+			case *sdl.QuitEvent:
+			    // push a shutdown on the control socket, game and render will pick it up later
+				// NOTE: if the message patterns change we may still have to deal with hangs here
+				sendShutdown(nnRenderSocket, nnGameSocket)
+				
+				shutdownRequested = true
+			default:
+				fmt.Printf("SDL_Event %T\n", event);
 			}
 		}
 	}
 }
 
-func degToRad(deg float32) float32 {
+func deg2Rad(deg float32) float32 {
 	return deg * math.Pi / 180
 }
 

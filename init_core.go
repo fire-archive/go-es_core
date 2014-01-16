@@ -9,7 +9,8 @@ import ("fmt"
 	"github.com/fire/go-ogre3d"
 	"github.com/jmckaskill/go-capnproto"
 	"runtime"
-	"math")
+	"math"
+	"bytes")
 
 type InputState struct {
 	yawSens float32
@@ -73,7 +74,7 @@ func InitCore() {
 	}
 	
 	renderWindow := root.CreateRenderWindow("es_core::ogre", 800, 600, false, params)
-//	renderWindow.SetVisible(true)
+	renderWindow.SetVisible(true)
 	
 	nnGameSocket, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
         if err != nil {
@@ -199,8 +200,26 @@ func InitCore() {
 			}
 		}
 		switch {
+		// we are ready to process the request now
 		case state.Mouse():
+			buttons := sdl.GetMouseState(nil, nil)
+			fmt.Printf("buttons: %d\n", buttons)
+			s := capn.NewBuffer(nil)
+			ms := NewRootInputMouse(s)
+			ms.SetW(is.orientation.W)
+			ms.SetX(is.orientation.X)
+			ms.SetY(is.orientation.Y)
+			ms.SetZ(is.orientation.Z)
+			ms.SetButtons(buttons)
+			buf := bytes.Buffer{}
+			s.WriteTo(&buf)
+			nnInputPub.Send(append([]byte("input.mouse:"), buf.Bytes()...), 0)
+			fmt.Printf("Mouse input sent.\n")
+		case state.Kb():
+			state := sdl.GetKeyboardState(nil)
 			
+		case state.MouseReset():
+		case state.ConfigLookAround():
 		}
 	}
 }

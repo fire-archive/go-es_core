@@ -1,0 +1,1 @@
+capnp compile -ogo *.capnp

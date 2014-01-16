@@ -49,7 +49,7 @@ func InitCore() {
 		root.LoadPlugin(wd  + "/RenderSystem_GL3Plus")
 		}
 	if runtime.GOOS == "darwin" {
-		root.LoadPlugin(wd  + "/../frameworks/RenderSystem_GL")
+		root.LoadPlugin(wd  + "/../frameworks/RenderSystem_GL3Plus")
 	}
 				
 	renderers := root.GetAvailableRenderers()

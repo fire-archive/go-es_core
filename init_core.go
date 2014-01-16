@@ -7,7 +7,7 @@ import ("fmt"
 	"github.com/jackyb/go-sdl2/sdl"
 	"github.com/op/go-nanomsg"
 	"github.com/fire/go-ogre3d"
-	"github.com/ugorji/go/codec"
+	"github.com/jmckaskill/go-capnproto"
 	"runtime"
 	"math")
 
@@ -130,22 +130,22 @@ func InitCore() {
 	is.roll = 0.0
 	is.orientationFactor = -1.0 // Look around config
 
-	// Msgpack
-	var (
-		v interface{} //Value to decode into
-		mh codec.MsgpackHandle
-	)
-	
+
 	for !shutdownRequested {
-		var inputRequest []byte
+		var b []byte
 		// We wait here.
-		inputRequest, err = nnInputPull.Recv(0)
+		b, err = nnInputPull.Recv(0)	
+		s, _, err := capn.ReadFromMemoryZeroCopy(b)
+		if err != nil {
+			fmt.Printf("Read error %v\n", err)
+			return
+		}	
+		state := ReadRootState(s)
+		
 		fmt.Printf("Game push received:\n")
 		if err != nil {
 			fmt.Printf("%s\n", err)
 		}
-		dec := codec.NewDecoderBytes(inputRequest, &mh)
-		err = dec.Decode(&v)
 		if err != nil {
 			fmt.Printf("%s\n", err)
 		}
@@ -197,6 +197,10 @@ func InitCore() {
 			default:
 				fmt.Printf("SDL_Event %T\n", event);
 			}
+		}
+		switch {
+		case state.Mouse():
+			
 		}
 	}
 }

@@ -46,7 +46,7 @@ func InitCore() {
 		panic(err)
 	}
 	if runtime.GOOS == "windows" {
-		root.LoadPlugin(wd  + "/RenderSystem_GL")
+		root.LoadPlugin(wd  + "/RenderSystem_GL3Plus")
 		}
 	if runtime.GOOS == "darwin" {
 		root.LoadPlugin(wd  + "/../frameworks/RenderSystem_GL")

@@ -215,9 +215,24 @@ func InitCore() {
 			s.WriteTo(&buf)
 			nnInputPub.Send(append([]byte("input.mouse:"), buf.Bytes()...), 0)
 			fmt.Printf("Mouse input sent.\n")
-		case state.Kb():
-			state := sdl.GetKeyboardState(nil)
 			
+		case state.Kb():
+		// looking at a few hardcoded keys for now
+		// NOTE: I suspect it would be perfectly safe to grab that pointer once, and read it from a different thread?
+			state := sdl.GetKeyboardState(nil)
+			t := capn.NewBuffer(nil)
+			kbs := NewRootInputKb(t)			
+			kbs.SetW(state[sdl.SCANCODE_W] != 0)
+			kbs.SetA(state[sdl.SCANCODE_A] != 0)
+			kbs.SetS(state[sdl.SCANCODE_S] != 0)
+			kbs.SetD(state[sdl.SCANCODE_D] != 0)
+			kbs.SetSpace(state[sdl.SCANCODE_SPACE] != 0)
+			kbs.SetLalt(state[sdl.SCANCODE_LALT] != 0)
+			b := bytes.Buffer{}
+			t.WriteTo(&b)
+			nnInputPub.Send(append([]byte("input.kb:"), b.Bytes()...), 0)
+			fmt.Printf("Keyboard input sent.\n")
+				
 		case state.MouseReset():
 		case state.ConfigLookAround():
 		}

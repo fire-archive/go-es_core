@@ -234,6 +234,13 @@ func InitCore() {
 			fmt.Printf("Keyboard input sent.\n")
 				
 		case state.MouseReset():
+			//var q ogre.Quaternion;
+			//is.orientation = q.CreateFromWXYZ(state.W(), state.X(),
+			//	state.Y(), state.Z())
+			var r ogre.Matrix3
+			is.orientation.ToRotationMatrix(&r)
+			//var rfYAngle, rfPAngle, rfRAngle float32
+			// r.ToEulerAnglesYXZ(rfYAngle, rfPAngle, rfRAngle)
 		case state.ConfigLookAround():
 		}
 	}

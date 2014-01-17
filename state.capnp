@@ -11,6 +11,13 @@ struct State {
 		mouseReset @2 :Bool;
 		configLookAround @3 :Bool;
 	}
+	
+	quaternion :group {
+		w @4 :Float32;
+		x @5 :Float32;
+		y @6 :Float32;
+		z @7 :Float32;
+	}
 }
 
 struct InputMouse {

@@ -9,6 +9,7 @@ import (
 )
 
 type State C.Struct
+type StateQuaternion State
 type State_Which uint16
 
 const (
@@ -18,22 +19,31 @@ const (
 	STATE_CONFIGLOOKAROUND             = 3
 )
 
-func NewState(s *C.Segment) State          { return State(s.NewStruct(8, 0)) }
-func NewRootState(s *C.Segment) State      { return State(s.NewRootStruct(8, 0)) }
-func ReadRootState(s *C.Segment) State     { return State(s.Root(0).ToStruct()) }
-func (s State) Which() State_Which         { return State_Which(C.Struct(s).Get16(2)) }
-func (s State) Mouse() bool                { return C.Struct(s).Get1(0) }
-func (s State) SetMouse(v bool)            { C.Struct(s).Set16(2, 0); C.Struct(s).Set1(0, v) }
-func (s State) Kb() bool                   { return C.Struct(s).Get1(0) }
-func (s State) SetKb(v bool)               { C.Struct(s).Set16(2, 1); C.Struct(s).Set1(0, v) }
-func (s State) MouseReset() bool           { return C.Struct(s).Get1(0) }
-func (s State) SetMouseReset(v bool)       { C.Struct(s).Set16(2, 2); C.Struct(s).Set1(0, v) }
-func (s State) ConfigLookAround() bool     { return C.Struct(s).Get1(0) }
-func (s State) SetConfigLookAround(v bool) { C.Struct(s).Set16(2, 3); C.Struct(s).Set1(0, v) }
+func NewState(s *C.Segment) State           { return State(s.NewStruct(24, 0)) }
+func NewRootState(s *C.Segment) State       { return State(s.NewRootStruct(24, 0)) }
+func ReadRootState(s *C.Segment) State      { return State(s.Root(0).ToStruct()) }
+func (s State) Which() State_Which          { return State_Which(C.Struct(s).Get16(2)) }
+func (s State) Mouse() bool                 { return C.Struct(s).Get1(0) }
+func (s State) SetMouse(v bool)             { C.Struct(s).Set16(2, 0); C.Struct(s).Set1(0, v) }
+func (s State) Kb() bool                    { return C.Struct(s).Get1(0) }
+func (s State) SetKb(v bool)                { C.Struct(s).Set16(2, 1); C.Struct(s).Set1(0, v) }
+func (s State) MouseReset() bool            { return C.Struct(s).Get1(0) }
+func (s State) SetMouseReset(v bool)        { C.Struct(s).Set16(2, 2); C.Struct(s).Set1(0, v) }
+func (s State) ConfigLookAround() bool      { return C.Struct(s).Get1(0) }
+func (s State) SetConfigLookAround(v bool)  { C.Struct(s).Set16(2, 3); C.Struct(s).Set1(0, v) }
+func (s State) Quaternion() StateQuaternion { return StateQuaternion(s) }
+func (s StateQuaternion) W() float32        { return math.Float32frombits(C.Struct(s).Get32(4)) }
+func (s StateQuaternion) SetW(v float32)    { C.Struct(s).Set32(4, math.Float32bits(v)) }
+func (s StateQuaternion) X() float32        { return math.Float32frombits(C.Struct(s).Get32(8)) }
+func (s StateQuaternion) SetX(v float32)    { C.Struct(s).Set32(8, math.Float32bits(v)) }
+func (s StateQuaternion) Y() float32        { return math.Float32frombits(C.Struct(s).Get32(12)) }
+func (s StateQuaternion) SetY(v float32)    { C.Struct(s).Set32(12, math.Float32bits(v)) }
+func (s StateQuaternion) Z() float32        { return math.Float32frombits(C.Struct(s).Get32(16)) }
+func (s StateQuaternion) SetZ(v float32)    { C.Struct(s).Set32(16, math.Float32bits(v)) }
 
 type State_List C.PointerList
 
-func NewStateList(s *C.Segment, sz int) State_List { return State_List(s.NewUInt32List(sz)) }
+func NewStateList(s *C.Segment, sz int) State_List { return State_List(s.NewCompositeList(24, 0, sz)) }
 func (s State_List) Len() int                      { return C.PointerList(s).Len() }
 func (s State_List) At(i int) State                { return State(C.PointerList(s).At(i).ToStruct()) }
 func (s State_List) ToArray() []State              { return *(*[]State)(unsafe.Pointer(C.PointerList(s).ToArray())) }

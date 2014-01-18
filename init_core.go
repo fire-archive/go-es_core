@@ -234,20 +234,34 @@ func InitCore() {
 			fmt.Printf("Keyboard input sent.\n")
 				
 		case state.MouseReset():
-			//var q ogre.Quaternion;
-			//is.orientation = q.CreateFromWXYZ(state.W(), state.X(),
-			//	state.Y(), state.Z())
+			var q ogre.Quaternion;
+			is.orientation = q.FromValues(state.Quaternion().W(), state.Quaternion().X(),
+				state.Quaternion().Y(), state.Quaternion().Z())
 			var r ogre.Matrix3
 			is.orientation.ToRotationMatrix(&r)
-			//var rfYAngle, rfPAngle, rfRAngle float32
-			// r.ToEulerAnglesYXZ(rfYAngle, rfPAngle, rfRAngle)
+			var rfYAngle, rfPAngle, rfRAngle float32
+			r.ToEulerAnglesYXZ(&rfYAngle, &rfPAngle, &rfRAngle)
+			is.yaw = rad2Deg(rfYAngle)
+			is.pitch = rad2Deg(rfPAngle)
+			is.roll = rad2Deg(rfRAngle)
 		case state.ConfigLookAround():
+			if state.LookAround().ManipulateObject() {
+				fmt.Printf("Input configuration: manipulate object\n");
+				is.orientationFactor = 1.0;
+			} else {
+				fmt.Printf("Input configuration: look around\n");
+				is.orientationFactor = -1.0
+			}
 		}
 	}
 }
 
 func deg2Rad(deg float32) float32 {
 	return deg * math.Pi / 180
+}
+
+func rad2Deg (rad float32) float32 {
+	return rad * 180 / math.Pi
 }
 
 func sendShutdown(nnRenderSocket *nanomsg.Socket, nnGameSocket *nanomsg.Socket) {

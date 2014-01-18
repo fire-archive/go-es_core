@@ -18,6 +18,10 @@ struct State {
 		y @6 :Float32;
 		z @7 :Float32;
 	}
+	
+	lookAround :group {
+		manipulateObject @8 :Bool;
+	}
 }
 
 struct InputMouse {

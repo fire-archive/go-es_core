@@ -66,7 +66,7 @@ func gameThread(params GameThreadParams) {
 			// NOTE: build the state of the world at t = framenum * GAME_DELAY,
 			// under normal conditions that's a time in the future
 			// (the exception to that is if we are catching up on ticking game frames)
-			gameTick(&gs, &srs, now);
+			gameTick(&gs, &srs, now)
 			// Notify the render thread that a new game state is ready.
 			// On the next render frame, it will start interpolating between the previous state and this new one
 		} else {

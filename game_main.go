@@ -78,18 +78,19 @@ func gameThread(params GameThreadParams) (int) {
 			fmt.Printf("Game sleep %f ms\n", float64(ahead)/float64(time.Millisecond))
 			time.Sleep(ahead)
 		}
-		
-		cmd, err := gsockets.controlSocket.Recv(nanomsg.DontWait)
+		b, err := gsockets.controlSocket.Recv(nanomsg.DontWait)
 		if err != nil {
 			fmt.Printf("%s\n", err)
 		}	
-		s, _, err := capn.ReadFromMemoryZeroCopy(cmd)
-		if err != nil {
-			fmt.Printf("Read error %v\n", err)
-		}
-		stop := ReadRootStop(s)
-		if stop.Stop() {
-			break
+		if b != nil {
+			s, _, err := capn.ReadFromMemoryZeroCopy(b)
+			if err != nil {
+				fmt.Printf("Read error %v\n", err)
+			}
+			stop := ReadRootStop(s)	
+			if stop.Stop() {
+				break
+			}
 		}
 	}
 	return 0

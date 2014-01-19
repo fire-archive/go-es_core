@@ -44,8 +44,6 @@ func (s StateQuaternion) SetZ(v float32)             { C.Struct(s).Set32(16, mat
 func (s State) LookAround() StateLookAround          { return StateLookAround(s) }
 func (s StateLookAround) ManipulateObject() bool     { return C.Struct(s).Get1(1) }
 func (s StateLookAround) SetManipulateObject(v bool) { C.Struct(s).Set1(1, v) }
-func (s StateLookAround) LookAround() bool           { return C.Struct(s).Get1(2) }
-func (s StateLookAround) SetLookAround(v bool)       { C.Struct(s).Set1(2, v) }
 
 type State_List C.PointerList
 
@@ -107,3 +105,18 @@ func (s InputKb_List) At(i int) InputKb                { return InputKb(C.Pointe
 func (s InputKb_List) ToArray() []InputKb {
 	return *(*[]InputKb)(unsafe.Pointer(C.PointerList(s).ToArray()))
 }
+
+type Stop C.Struct
+
+func NewStop(s *C.Segment) Stop      { return Stop(s.NewStruct(8, 0)) }
+func NewRootStop(s *C.Segment) Stop  { return Stop(s.NewRootStruct(8, 0)) }
+func ReadRootStop(s *C.Segment) Stop { return Stop(s.Root(0).ToStruct()) }
+func (s Stop) Stop() bool            { return C.Struct(s).Get1(0) }
+func (s Stop) SetStop(v bool)        { C.Struct(s).Set1(0, v) }
+
+type Stop_List C.PointerList
+
+func NewStopList(s *C.Segment, sz int) Stop_List { return Stop_List(s.NewBitList(sz)) }
+func (s Stop_List) Len() int                     { return C.PointerList(s).Len() }
+func (s Stop_List) At(i int) Stop                { return Stop(C.PointerList(s).At(i).ToStruct()) }
+func (s Stop_List) ToArray() []Stop              { return *(*[]Stop)(unsafe.Pointer(C.PointerList(s).ToArray())) }

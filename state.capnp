@@ -40,3 +40,7 @@ struct InputKb {
 	space @4 :Bool;
 	lalt @5 :Bool;
 }
+
+struct Stop {
+	stop @0 :Bool;
+}

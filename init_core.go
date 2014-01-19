@@ -132,7 +132,7 @@ func InitCore() {
 	is.orientationFactor = -1.0 // Look around config
 
 
-	for !shutdownRequested {
+	for !shutdownRequested /* && SDL_GetTicks() < MAX_RUN_TIME */ {
 		var b []byte
 		// We wait here.
 		b, err = nnInputPull.Recv(0)	
@@ -254,6 +254,11 @@ func InitCore() {
 			}
 		}
 	}
+	if !shutdownRequested {
+      sendShutdown(nnRenderSocket, nnGameSocket)
+      shutdownRequested = true
+    }
+    waitShutdown(nnInputPull)
 }
 
 func deg2Rad(deg float32) float32 {
@@ -265,6 +270,25 @@ func rad2Deg (rad float32) float32 {
 }
 
 func sendShutdown(nnRenderSocket *nanomsg.Socket, nnGameSocket *nanomsg.Socket) {
+	s := capn.NewBuffer(nil)
+	stop := NewRootStop(s)
+	stop.SetStop(true)
+	buf := bytes.Buffer{}
+	s.WriteTo(&buf)
 	fmt.Printf("Render socket shutdown.\n")
+	nnRenderSocket.Send(buf.Bytes(), 0)
 	fmt.Printf("Game socket shutdown.\n")
+	nnGameSocket.Send(buf.Bytes(), 0)
 }
+
+func waitShutdown(nnInputPull *nanomsg.Socket) {
+	// For now, loop the input thread for a bit to flush out any events
+	continueTime := sdl.GetTicks() + 500 // An eternity.
+	for sdl.GetTicks() < continueTime {	
+		msg, _ := nnInputPull.Recv(nanomsg.DontWait)
+		if msg == nil {
+			sdl.Delay(10)
+		}
+	}
+}
+

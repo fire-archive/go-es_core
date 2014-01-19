@@ -22,16 +22,23 @@ type GameState struct {
 
 func gameInit(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState){
 	fmt.Printf("Game Init.\n")
+	gs.speed = randFloat32(59) + 40
+	fmt.Printf("Random speed: %f\n", gs.speed)
+	gs.bounce = 25.0
+	angle := deg2Rad(randFloat32(359))
+	fmt.Printf("Random angle: %f\n", angle)
+}
+
+func gameTick(gs *GameState, srs *SharedRenderState, now time.Duration){
+	fmt.Printf("Game Tick.\n")
+}
+
+// Create a random 32bit float from [1,max+1).
+func randFloat32(max uint64) float32 {
 	i := big.NewInt(0)
 	r, err := rand.Int(rand.Reader, i.SetUint64(uint64(1) << 63))
 	if err != nil {
 			fmt.Printf("%s\n", err)
 	}	
-	randSpeed := float64(r.Uint64()) / (1 << 63) * 59
-	fmt.Printf("Random speed: %f\n", randSpeed)
-	gs.bounce = 25.0
-}
-
-func gameTick(gs *GameState, srs *SharedRenderState, now time.Duration){
-	fmt.Printf("Game Tick.\n")
+	return float32(float64(r.Uint64()) / float64(1 << 63) * float64(max))
 }

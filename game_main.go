@@ -2,7 +2,8 @@ package core
 
 import ("fmt"
 		"time"
-		"github.com/op/go-nanomsg")
+		"github.com/op/go-nanomsg"
+		"github.com/jmckaskill/go-capnproto")
 const MAXFRAMERATE = 60 
 const GAMEDELAY = time.Duration(time.Second / MAXFRAMERATE) 
 const GAMETICKFLOAT = float64(GAMEDELAY) / float64(time.Millisecond)
@@ -15,7 +16,7 @@ type GameThreadSockets struct {
 	renderSocket *nanomsg.Socket
 }
 
-func gameThread(params GameThreadParams) {
+func gameThread(params GameThreadParams) (int) {
 	var gsockets GameThreadSockets
 	var gs GameState
 	var srs SharedRenderState
@@ -77,6 +78,19 @@ func gameThread(params GameThreadParams) {
 			fmt.Printf("Game sleep %f ms\n", float64(ahead)/float64(time.Millisecond))
 			time.Sleep(ahead)
 		}
-		//cmd := 
+		
+		cmd, err := gsockets.controlSocket.Recv(nanomsg.DontWait)
+		if err != nil {
+			fmt.Printf("%s\n", err)
+		}	
+		s, _, err := capn.ReadFromMemoryZeroCopy(cmd)
+		if err != nil {
+			fmt.Printf("Read error %v\n", err)
+		}
+		stop := ReadRootStop(s)
+		if stop.Stop() {
+			break
+		}
 	}
+	return 0
 }

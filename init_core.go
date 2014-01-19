@@ -142,9 +142,8 @@ func InitCore() {
 
 
 	for !shutdownRequested /* && SDL_GetTicks() < MAX_RUN_TIME */ {
-		var b []byte
 		// We wait here.
-		b, err = nnInputPull.Recv(0)
+		b, err := nnInputPull.Recv(0)
 		if err != nil {
 			fmt.Printf("%s\n", err)
 		}	

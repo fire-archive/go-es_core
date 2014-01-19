@@ -74,7 +74,7 @@ func gameThread(params GameThreadParams) {
 			if ahead < 0 {
 				panic(fmt.Sprintf("Ahead is less than 0: %d\n", ahead))
 			}
-			fmt.Printf("Game sleep %d ms\n", ahead)
+			fmt.Printf("Game sleep %f ms\n", float64(ahead)/float64(time.Millisecond))
 			time.Sleep(ahead)
 		}
 		//cmd := 

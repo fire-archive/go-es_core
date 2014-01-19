@@ -2,6 +2,8 @@ package core
 
 import ("fmt"
 		"time"
+		"crypto/rand"
+		"math/big"
 		"github.com/fire/go-ogre3d")
 
 type OrientationHistory struct {
@@ -18,8 +20,16 @@ type GameState struct {
 	rotationSpeed float32  	// Rotation speed of the head in degrees:
 }
 
-func gameInit(){
+func gameInit(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState){
 	fmt.Printf("Game Init.\n")
+	i := big.NewInt(0)
+	r, err := rand.Int(rand.Reader, i.SetUint64(uint64(1) << 63))
+	if err != nil {
+			fmt.Printf("%s\n", err)
+	}	
+	randSpeed := float64(r.Uint64()) / (1 << 63) * 59
+	fmt.Printf("Random speed: %f\n", randSpeed)
+	gs.bounce = 25.0
 }
 
 func gameTick(gs *GameState, srs *SharedRenderState, now time.Duration){

@@ -55,7 +55,7 @@ func gameThread(params GameThreadParams) (int) {
 	}
 	_, err = gsockets.inputKbSub.Connect("tcp://127.0.0.1:60208")
 
-	gameInit()
+	gameInit(&gsockets, &gs, &srs)
 	baseLine := time.Since(params.start)
 	var framenum uint64
 	framenum = 0

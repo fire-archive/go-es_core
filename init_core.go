@@ -135,22 +135,17 @@ func InitCore() {
 	for !shutdownRequested /* && SDL_GetTicks() < MAX_RUN_TIME */ {
 		var b []byte
 		// We wait here.
-		b, err = nnInputPull.Recv(0)	
+		b, err = nnInputPull.Recv(0)
+		if err != nil {
+			fmt.Printf("%s\n", err)
+		}	
 		s, _, err := capn.ReadFromMemoryZeroCopy(b)
 		if err != nil {
 			fmt.Printf("Read error %v\n", err)
 			return
 		}	
 		state := ReadRootState(s)
-		
 		fmt.Printf("Game push received:\n")
-		if err != nil {
-			fmt.Printf("%s\n", err)
-		}
-		if err != nil {
-			fmt.Printf("%s\n", err)
-		}
-
 		// poll for events before processing the request
 		// NOTE: this is how SDL builds the internal mouse and keyboard state
 		// TODO: done this way does not meet the objectives of smooth, frame independent mouse view control,

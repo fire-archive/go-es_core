@@ -4,13 +4,14 @@ package core
 import ("fmt"
 	"os"
 	"strconv"
+	"runtime"
+	"math"
+	"bytes"
+	"time"
 	"github.com/jackyb/go-sdl2/sdl"
 	"github.com/op/go-nanomsg"
 	"github.com/fire/go-ogre3d"
-	"github.com/jmckaskill/go-capnproto"
-	"runtime"
-	"math"
-	"bytes")
+	"github.com/jmckaskill/go-capnproto")
 
 type InputState struct {
 	yawSens float32
@@ -22,7 +23,15 @@ type InputState struct {
 	orientation ogre.Quaternion // current orientation
 }
 
+type GameThreadParams struct {
+	start time.Time
+}
+
 func InitCore() {
+	var gameThreadParams GameThreadParams
+	gameThreadParams.start = time.Now() // There's an small time before this variable is initalized,
+	// it probably doesn't matter... Someone timed Go initalization at 1.94us on Linux.
+	
 	sdl.Init(sdl.INIT_EVERYTHING)
 	window := sdl.CreateWindow("es_core::SDL",
 		sdl.WINDOWPOS_UNDEFINED,
@@ -111,7 +120,7 @@ func InitCore() {
         if err != nil {
                 panic(err)
         }
-	go gameThread()
+	go gameThread(gameThreadParams)
 	var renderThreadParams RenderThreadParams
 	renderThreadParams.root = root
 	renderThreadParams.window = window
@@ -253,7 +262,7 @@ func InitCore() {
       sendShutdown(nnRenderSocket, nnGameSocket)
       shutdownRequested = true
     }
-    waitShutdown(nnInputPull)
+    waitShutdown(nnInputPull, &gameThreadParams)
 }
 
 func deg2Rad(deg float32) float32 {
@@ -276,10 +285,10 @@ func sendShutdown(nnRenderSocket *nanomsg.Socket, nnGameSocket *nanomsg.Socket) 
 	nnGameSocket.Send(buf.Bytes(), 0)
 }
 
-func waitShutdown(nnInputPull *nanomsg.Socket) {
+func waitShutdown(nnInputPull *nanomsg.Socket, params *GameThreadParams) {
 	// For now, loop the input thread for a bit to flush out any events
-	continueTime := sdl.GetTicks() + 500 // An eternity.
-	for sdl.GetTicks() < continueTime {	
+	continueTime := time.Since(params.start) + 500 * time.Millisecond  // An eternity.
+	for time.Since(params.start) < continueTime {	
 		msg, _ := nnInputPull.Recv(nanomsg.DontWait)
 		if msg == nil {
 			sdl.Delay(10)

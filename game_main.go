@@ -1,55 +1,82 @@
 package core
 
 import ("fmt"
-	"github.com/op/go-nanomsg"
-	"github.com/jackyb/go-sdl2/sdl"
-	)
+		"time"
+		"github.com/op/go-nanomsg")
+const MAXFRAMERATE = 60 
+const GAMEDELAY = time.Duration(time.Second / MAXFRAMERATE) 
+const GAMETICKFLOAT = float64(GAMEDELAY) / float64(time.Millisecond)
 
 type GameThreadSockets struct {
-	controlSocket nanomsg.Socket
-	inputMouseSub nanomsg.Socket
-	inputKbSub nanomsg.Socket
-	inputPush nanomsg.Socket
-	renderSocket nanomsg.Socket
+	controlSocket *nanomsg.Socket
+	inputMouseSub *nanomsg.SubSocket
+	inputKbSub *nanomsg.SubSocket
+	inputPush *nanomsg.Socket
+	renderSocket *nanomsg.Socket
 }
 
-func gameThread() {
-	controlSocket, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
+func gameThread(params GameThreadParams) {
+	var gsockets GameThreadSockets
+	var gs GameState
+	var srs SharedRenderState
+	var err error
+	gsockets.controlSocket, err = nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
 	if err != nil {
-                panic(err)
-        }
-        _, err = controlSocket.Connect("tcp://127.0.0.1:60206")
-        if err != nil {
-                panic(err)
-        }
-
-	renderSocket, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
+		panic(err)
+    }
+    _, err = gsockets.controlSocket.Connect("tcp://127.0.0.1:60206")
+    if err != nil {
+		panic(err)
+    }
+	gsockets.renderSocket, err = nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
 	if err != nil {
-                panic(err)
-        }
-        _, err = renderSocket.Bind("tcp://127.0.0.1:60210")
-        if err != nil {
-                panic(err)
-        }
+		panic(err)
+    }
+    _, err = gsockets.renderSocket.Bind("tcp://127.0.0.1:60210")
+    if err != nil {
+		panic(err)
+    }
 
-	inputMouseSub, err := nanomsg.NewSubSocket()
-	inputMouseSub.Subscribe("input.mouse:")
+	gsockets.inputMouseSub, err = nanomsg.NewSubSocket()
 	if err != nil {
 		panic(err)
 	}
-	_, err = inputMouseSub.Connect("tcp://127.0.0.1:60208")
+	gsockets.inputMouseSub.Subscribe("input.mouse:")
+	_, err = gsockets.inputMouseSub.Connect("tcp://127.0.0.1:60208")
 	if err != nil {
 		panic(err)
 	}
 	
-	inputKbSub, err := nanomsg.NewSubSocket()
-	inputKbSub.Subscribe("input.kb:")
+	gsockets.inputKbSub, err = nanomsg.NewSubSocket()
+	gsockets.inputKbSub.Subscribe("input.kb:")
 	if err != nil {
 		panic(err)
 	}
-	_, err = inputKbSub.Connect("tcp://127.0.0.1:60208")
+	_, err = gsockets.inputKbSub.Connect("tcp://127.0.0.1:60208")
 
 	gameInit()
-	baseLine := sdl.GetTicks()
-	fmt.Printf("baseline: %d\n", baseLine)
+	baseLine := time.Since(params.start)
+	var framenum uint64
+	framenum = 0
+	for true {
+		now := time.Since(params.start)
+		targetFrame := uint64 ((now - baseLine) / GAMEDELAY)
+		if framenum <= targetFrame {
+			framenum++
+			// NOTE: build the state of the world at t = framenum * GAME_DELAY,
+			// under normal conditions that's a time in the future
+			// (the exception to that is if we are catching up on ticking game frames)
+			gameTick(&gs, &srs, now);
+			// Notify the render thread that a new game state is ready.
+			// On the next render frame, it will start interpolating between the previous state and this new one
+		} else {
+			ahead := time.Duration(framenum) * GAMEDELAY - (now - baseLine)
+			if ahead < 0 {
+				panic(fmt.Sprintf("Ahead is less than 0: %d\n", ahead))
+			}
+			fmt.Printf("Game sleep %d ms\n", ahead)
+			time.Sleep(ahead)
+		}
+		//cmd := 
+	}
 }

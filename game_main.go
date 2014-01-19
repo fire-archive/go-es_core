@@ -9,11 +9,11 @@ const GAMEDELAY = time.Duration(time.Second / MAXFRAMERATE)
 const GAMETICKFLOAT = float64(GAMEDELAY) / float64(time.Millisecond)
 
 type GameThreadSockets struct {
-	controlSocket *nanomsg.Socket
+	controlSocket *nanomsg.BusSocket
 	inputMouseSub *nanomsg.SubSocket
 	inputKbSub *nanomsg.SubSocket
-	inputPush *nanomsg.Socket
-	renderSocket *nanomsg.Socket
+	inputPush *nanomsg.PushSocket
+	renderSocket *nanomsg.BusSocket
 }
 
 func gameThread(params GameThreadParams) (int) {
@@ -21,7 +21,7 @@ func gameThread(params GameThreadParams) (int) {
 	var gs GameState
 	var srs SharedRenderState
 	var err error
-	gsockets.controlSocket, err = nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
+	gsockets.controlSocket, err = nanomsg.NewBusSocket()
 	if err != nil {
 		panic(err)
     }
@@ -29,7 +29,7 @@ func gameThread(params GameThreadParams) (int) {
     if err != nil {
 		panic(err)
     }
-	gsockets.renderSocket, err = nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
+	gsockets.renderSocket, err = nanomsg.NewBusSocket()
 	if err != nil {
 		panic(err)
     }
@@ -54,6 +54,13 @@ func gameThread(params GameThreadParams) (int) {
 		panic(err)
 	}
 	_, err = gsockets.inputKbSub.Connect("tcp://127.0.0.1:60208")
+
+	gsockets.inputPush, err = nanomsg.NewPushSocket()
+	if err != nil {
+		panic(err)
+	}
+	_, err = gsockets.inputPush.Connect("tcp://127.0.0.1:60209")
+
 
 	gameInit(&gsockets, &gs, &srs)
 	baseLine := time.Since(params.start)

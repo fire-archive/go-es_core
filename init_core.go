@@ -29,6 +29,7 @@ func InitCore() {
 	// it probably doesn't matter... Someone timed Go initalization at 1.94us on Linux.
 	
 	sdl.Init(sdl.INIT_EVERYTHING)
+	var event sdl.Event
 	window := sdl.CreateWindow("es_core::SDL",
 		sdl.WINDOWPOS_UNDEFINED,
 		sdl.WINDOWPOS_UNDEFINED,
@@ -161,7 +162,6 @@ func InitCore() {
 		// TODO: done this way does not meet the objectives of smooth, frame independent mouse view control,
 		// Plus it throws some latency into the calling thread
 
-		var event sdl.Event
 		for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent {
 			switch t := event.(type) {
 			case *sdl.KeyDownEvent:
@@ -169,7 +169,6 @@ func InitCore() {
 			case *sdl.KeyUpEvent:
 				fmt.Printf("SDL keyboard event:\n")
 				if t.Keysym.Scancode == sdl.SCANCODE_ESCAPE {
-					// Todo
 					sendShutdown(nnRenderSocket, nnGameSocket)
 					shutdownRequested = true
 				}
@@ -198,10 +197,10 @@ func InitCore() {
 			    // push a shutdown on the control socket, game and render will pick it up later
 				// NOTE: if the message patterns change we may still have to deal with hangs here
 				sendShutdown(nnRenderSocket, nnGameSocket)				
-				
 				shutdownRequested = true
 			default:
-				fmt.Printf("SDL_Event %T\n", event);
+				fmt.Printf("SDL_Event: %T\n", t);
+				
 			}
 		}
 		switch {
@@ -224,7 +223,7 @@ func InitCore() {
 		case state.Kb():
 		// looking at a few hardcoded keys for now
 		// NOTE: I suspect it would be perfectly safe to grab that pointer once, and read it from a different thread?
-			state := sdl.GetKeyboardState(nil)
+			state := sdl.GetKeyboardState()
 			t := capn.NewBuffer(nil)
 			kbs := NewRootInputKb(t)			
 			kbs.SetW(state[sdl.SCANCODE_W] != 0)

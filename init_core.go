@@ -43,8 +43,13 @@ func InitCore() {
 	if !window.GetWMInfo(&info) {
 		panic(fmt.Sprintf("window.GetWMInfo failed.\n"))
 	}
-	// Parse and print info's version
-	// Parse and print info's SYSWM_TYPE
+	var version sdl.Version
+	sdl.GetVersion(&version)
+	
+	fmt.Printf("Sdl Major Version: %d\n", version.Major)
+	fmt.Printf("Sdl Minor Version: %d\n", version.Minor)
+	fmt.Printf("Sdl Patch level: %d\n", version.Patch)
+	fmt.Printf("Sdl Subsystem: %s\n", getSubsystemString(info)) 
 	root := ogre.NewRoot("", "", "ogre.log")
 	defer root.Destroy()
 	wd, err := os.Getwd()
@@ -192,7 +197,7 @@ func InitCore() {
 			case *sdl.QuitEvent:
 			    // push a shutdown on the control socket, game and render will pick it up later
 				// NOTE: if the message patterns change we may still have to deal with hangs here
-				sendShutdown(nnRenderSocket, nnGameSocket)
+				sendShutdown(nnRenderSocket, nnGameSocket)				
 				
 				shutdownRequested = true
 			default:
@@ -292,3 +297,20 @@ func waitShutdown(nnInputPull *nanomsg.Socket, params *GameThreadParams) {
 	}
 }
 
+func getSubsystemString(info sdl.SysWMInfo) string {
+	switch info.Subsystem {
+	case 0:	
+	    return "Unknown"
+	case 1:
+		return "Windows"
+	case 2:
+		return "X11"
+	case 3:
+		return "DirectFB"
+	case 4: 
+		return "Cocoa"
+	case 5:
+		return "UiKit"
+	}
+	return "Unknown"
+}

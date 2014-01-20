@@ -4,6 +4,7 @@ import ("fmt"
 		"time"
 		"github.com/op/go-nanomsg"
 		"github.com/jmckaskill/go-capnproto")
+		
 const MAXFRAMERATE = 60 
 const GAMEDELAY = time.Duration(time.Second / MAXFRAMERATE) 
 const GAMETICKFLOAT = float64(GAMEDELAY) / float64(time.Millisecond)
@@ -14,6 +15,10 @@ type GameThreadSockets struct {
 	inputKbSub *nanomsg.SubSocket
 	inputPush *nanomsg.PushSocket
 	renderSocket *nanomsg.BusSocket
+}
+
+type GameThreadParams struct {
+	start time.Time
 }
 
 func gameThread(params GameThreadParams) (int) {

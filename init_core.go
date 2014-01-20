@@ -23,10 +23,6 @@ type InputState struct {
 	orientation ogre.Quaternion // current orientation
 }
 
-type GameThreadParams struct {
-	start time.Time
-}
-
 func InitCore() {
 	var gameThreadParams GameThreadParams
 	gameThreadParams.start = time.Now() // There's an small time before this variable is initalized,
@@ -122,6 +118,7 @@ func InitCore() {
         }
 	go gameThread(gameThreadParams)
 	var renderThreadParams RenderThreadParams
+	renderThreadParams.start = gameThreadParams.start
 	renderThreadParams.root = root
 	renderThreadParams.window = window
 	renderThreadParams.ogreWindow = renderWindow

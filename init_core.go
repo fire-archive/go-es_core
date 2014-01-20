@@ -76,7 +76,6 @@ func InitCore() {
 	params := ogre.CreateNameValuePairList()
 	if runtime.GOOS == "windows" {
 		params.AddPair("externalGLControl", "1")
-		// Only supported for Win32 on Ogre 1.9 not on other platforms (documentation needs fixing to accurately reflect this)
 		params.AddPair("externalGLContext", strconv.FormatUint(uint64(uintptr(glContext)), 10))
 		
 		windowsInfo := info.GetWindowsInfo()
@@ -84,12 +83,23 @@ func InitCore() {
 		params.AddPair("externalWindowHandle", windowString)
 	}
 	if runtime.GOOS == "darwin" {
+		params.AddPair("externalGLControl", "1")
+		params.AddPair("externalGLContext", strconv.FormatUint(uint64(uintptr(glContext)), 10))
 		params.AddPair("macAPI", "cocoa")
 		cocoaInfo := info.GetCocoaInfo()
-		params.AddPair("parentWindowHandle", strconv.FormatUint(uint64(*(*uint32)(cocoaInfo.Window)), 10))
+		params.AddPair("externalWindowHandle", strconv.FormatUint(uint64(*(*uint32)(cocoaInfo.Window)), 10))
 	}
 	
 	renderWindow := root.CreateRenderWindow("es_core::ogre", 800, 600, false, params)
+	if runtime.GOOS == "darwin" {
+		// I suspect triple buffering is on by default, which makes vsync pointless?
+		// except maybe for poorly implemented render loops which will then be forced to wait
+		// window->SetVSyncEnabled(false)
+	} else {
+		// NOTE: SDL_GL_SWAP_CONTROL was SDL 1.2 and has been retired
+		sdl.GL_SetSwapInterval(1);
+	}
+	
 	renderWindow.SetVisible(true)
 	
 	nnGameSocket, err := nanomsg.NewSocket(nanomsg.AF_SP, nanomsg.BUS)
@@ -132,8 +142,10 @@ func InitCore() {
 	renderThreadParams.start = gameThreadParams.start
 	renderThreadParams.root = root
 	renderThreadParams.window = window
+	renderThreadParams.glContext = glContext
 	renderThreadParams.ogreWindow = renderWindow
 	
+	sdl.GL_MakeCurrent(window, nil)
 	go renderThread(renderThreadParams)
 
 	window.SetGrab(true)
@@ -147,7 +159,6 @@ func InitCore() {
 	is.pitch = 0.0
 	is.roll = 0.0
 	is.orientationFactor = -1.0 // Look around config
-
 
 	for !shutdownRequested /* && SDL_GetTicks() < MAX_RUN_TIME */ {
 		// We wait here.
@@ -267,6 +278,10 @@ func InitCore() {
       sendShutdown(nnRenderSocket, nnGameSocket)
       shutdownRequested = true
     }
+    // make the GL context again before proceeding with the teardown
+    if runtime.GOOS != "darwin" {
+		sdl.GL_MakeCurrent(window, glContext)
+	}
     waitShutdown(nnInputPull, &gameThreadParams)
 }
 

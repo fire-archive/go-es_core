@@ -10,6 +10,7 @@ import ("fmt"
 type RenderThreadParams struct {
 	root ogre.Root
 	window *sdl.Window
+	glContext sdl.GLContext
 	ogreWindow ogre.RenderWindow
 	start time.Time
 }
@@ -53,7 +54,9 @@ func renderThread(params RenderThreadParams) {
 	if err != nil {
 		panic(err)
     }
-    
+  
+	sdl.GL_MakeCurrent(params.window, params.glContext)
+
     // Internal render state, not part of the interpolation:
     var rs RenderState
     
@@ -107,6 +110,11 @@ func renderThread(params RenderThreadParams) {
 		//params.root._fireFrameStarted()
 		params.root.RenderOneFrame()
 		//params.root._fireFrameRenderingQueued()
+	    if params.glContext != nil {
+			// glcontext != NULL <=> SDL initialized the GL context and manages the buffer swaps
+			sdl.GL_SwapWindow(params.window)
+		}
+		//parms->root->_fireFrameEnded();
 		// 'render latency': How late is the image we displayed?
 		// If vsync is off, it's the time it took to render the frame.
 		// If vsync is on, it's render time + time waiting for the buffer swap.

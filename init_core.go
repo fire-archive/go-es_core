@@ -35,11 +35,13 @@ func InitCore() {
 		sdl.WINDOWPOS_UNDEFINED,
 		800,
 		600,
-		sdl.WINDOW_SHOWN)
+		sdl.WINDOW_OPENGL|sdl.WINDOW_SHOWN)
 	if window == nil {
 		panic(fmt.Sprintf("sdl.CreateWindow failed: %s\n", sdl.GetError()))
 	}
 	defer sdl.Quit()
+	glContext := sdl.GL_CreateContext(window)
+	
 	var info sdl.SysWMInfo 
 	if !window.GetWMInfo(&info) {
 		panic(fmt.Sprintf("window.GetWMInfo failed.\n"))
@@ -73,15 +75,18 @@ func InitCore() {
 	root.Initialise(false, "es_core::ogre")
 	params := ogre.CreateNameValuePairList()
 	if runtime.GOOS == "windows" {
+		params.AddPair("externalGLControl", "1")
+		// Only supported for Win32 on Ogre 1.9 not on other platforms (documentation needs fixing to accurately reflect this)
+		params.AddPair("externalGLContext", strconv.FormatUint(uint64(uintptr(glContext)), 10))
+		
 		windowsInfo := info.GetWindowsInfo()
-		windowString := strconv.FormatUint(uint64(*(*uint32)(windowsInfo.Window)), 10)
-		params.AddPair("parentWindowHandle", windowString)
+		windowString := strconv.FormatUint(uint64(uintptr(windowsInfo.Window)), 10)
+		params.AddPair("externalWindowHandle", windowString)
 	}
 	if runtime.GOOS == "darwin" {
 		params.AddPair("macAPI", "cocoa")
 		cocoaInfo := info.GetCocoaInfo()
-		windowString := strconv.FormatUint(uint64(*(*uint32)(cocoaInfo.Window)), 10)
-		params.AddPair("parentWindowHandle", windowString)
+		params.AddPair("parentWindowHandle", strconv.FormatUint(uint64(*(*uint32)(cocoaInfo.Window)), 10))
 	}
 	
 	renderWindow := root.CreateRenderWindow("es_core::ogre", 800, 600, false, params)

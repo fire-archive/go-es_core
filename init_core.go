@@ -8,6 +8,7 @@ import ("fmt"
 	"math"
 	"bytes"
 	"time"
+	"reflect"
 	"github.com/jackyb/go-sdl2/sdl"
 	"github.com/op/go-nanomsg"
 	"github.com/fire/go-ogre3d"
@@ -27,9 +28,7 @@ func InitCore() {
 	var gameThreadParams GameThreadParams
 	gameThreadParams.start = time.Now() // There's an small time before this variable is initalized,
 	// it probably doesn't matter... Someone timed Go initalization at 1.94us on Linux.
-	
 	sdl.Init(sdl.INIT_EVERYTHING)
-	var event sdl.Event
 	window := sdl.CreateWindow("es_core::SDL",
 		sdl.WINDOWPOS_UNDEFINED,
 		sdl.WINDOWPOS_UNDEFINED,
@@ -178,8 +177,10 @@ func InitCore() {
 		// TODO: done this way does not meet the objectives of smooth, frame independent mouse view control,
 		// Plus it throws some latency into the calling thread
 
-		for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent {
+		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch t := event.(type) {
+			default:
+				fmt.Printf("SDL_Event: %s\n", reflect.TypeOf(t).String()[5:]);
 			case *sdl.KeyDownEvent:
 				fmt.Printf("SDL keyboard event:\n")
 			case *sdl.KeyUpEvent:
@@ -214,9 +215,6 @@ func InitCore() {
 				// NOTE: if the message patterns change we may still have to deal with hangs here
 				sendShutdown(nnRenderSocket, nnGameSocket)				
 				shutdownRequested = true
-			default:
-				fmt.Printf("SDL_Event: %T\n", t);
-				
 			}
 		}
 		switch {

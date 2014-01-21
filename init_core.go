@@ -157,6 +157,7 @@ func InitCore() {
 	is.pitchSens = 0.1
 	is.pitch = 0.0
 	is.roll = 0.0
+	is.orientation = ogre.CreateQuaternion()
 	is.orientationFactor = -1.0 // Look around config
 
 	for !shutdownRequested /* && SDL_GetTicks() < MAX_RUN_TIME */ {

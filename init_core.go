@@ -222,7 +222,7 @@ func InitCore() {
 		// we are ready to process the request now
 		case state.Mouse():
 			buttons := sdl.GetMouseState(nil, nil)
-			fmt.Printf("buttons: %d\n", buttons)
+			fmt.Printf("Buttons: %d\n", buttons)
 			s := capn.NewBuffer(nil)
 			ms := NewRootInputMouse(s)
 			ms.SetW(is.orientation.W())

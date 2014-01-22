@@ -107,14 +107,14 @@ func renderThread(params RenderThreadParams) {
 		
 		interpolateAndRender(&rsockets, &rs, ratio, &srs[srsIndex^1], &srs[srsIndex])
 		
-		//params.root._fireFrameStarted()
+		params.root.FireFrameStarted()
 		params.root.RenderOneFrame()
-		//params.root._fireFrameRenderingQueued()
+		params.root.FireFrameRenderingQueued()
 	    if params.glContext != nil {
 			// glcontext != NULL <=> SDL initialized the GL context and manages the buffer swaps
 			sdl.GL_SwapWindow(params.window)
 		}
-		//parms->root->_fireFrameEnded();
+		params.root.FireFrameEnded();
 		// 'render latency': How late is the image we displayed?
 		// If vsync is off, it's the time it took to render the frame.
 		// If vsync is on, it's render time + time waiting for the buffer swap.

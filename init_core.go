@@ -322,7 +322,7 @@ func getSubsystemString(info sdl.SysWMInfo) string {
 		return "Microsoft Windows(TM)"
 	case sdl.SYSWM_X11:
 		return "X Window System"
-	case sdl.SYSWM_DIRECTF:
+	case sdl.SYSWM_DIRECTFB:
 		return "DirectFB"
 	case sdl.SYSWM_COCOA: 
 		return "Apple OS X"

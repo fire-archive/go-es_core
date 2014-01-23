@@ -1,4 +1,3 @@
-
 package core
 
 import ("fmt"
@@ -317,18 +316,18 @@ func waitShutdown(nnInputPull *nanomsg.Socket, params *GameThreadParams) {
 
 func getSubsystemString(info sdl.SysWMInfo) string {
 	switch info.Subsystem {
-	case 0:	
-	    return "Unknown"
-	case 1:
-		return "Windows"
-	case 2:
-		return "X11"
-	case 3:
+	case sdl.SYSWM_UNKNOWN:	
+		return "An unknown system!"
+	case sdl.SYSWM_WINDOW:
+		return "Microsoft Windows(TM)"
+	case sdl.SYSWM_X11:
+		return "X Window System"
+	case sdl.SYSWM_DIRECTF:
 		return "DirectFB"
-	case 4: 
-		return "Cocoa"
-	case 5:
-		return "UiKit"
+	case sdl.SYSWM_COCOA: 
+		return "Apple OS X"
+	case sdl.SYSWM_UIKIT:
+		return "Apple iOS"
 	}
 	return "Unknown"
 }

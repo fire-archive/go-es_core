@@ -318,7 +318,7 @@ func getSubsystemString(info sdl.SysWMInfo) string {
 	switch info.Subsystem {
 	case sdl.SYSWM_UNKNOWN:	
 		return "An unknown system!"
-	case sdl.SYSWM_WINDOW:
+	case sdl.SYSWM_WINDOWS:
 		return "Microsoft Windows(TM)"
 	case sdl.SYSWM_X11:
 		return "X Window System"

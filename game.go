@@ -20,7 +20,7 @@ type GameState struct {
 	speed float32 			// Picked a speed to bounce around at startup.
 	mousePressed bool 		// Go from mouse is pressed to click each time to change the control scheme.
 	//direction ogre.Vector2	// Direction the head is moving on the plane:
-	//rotation ogre.Vector3	// Rotation axis of the head:
+	rotation ogre.Vector3	// Rotation axis of the head:
 	rotationSpeed float32  	// Rotation speed of the head in degrees:
 	
 	// use the last few frames of mouse input to build a smoothed angular velocity
@@ -30,7 +30,7 @@ type GameState struct {
 	smoothedAngularVelocity float32 // Degree
 }
 
-func gameInit(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState){
+func gameInit(gsockets *GameThreadSockets, gs *GameState, rs *SharedRenderState){
 	fmt.Printf("Game Init.\n")
 	gs.speed = randFloat32(59) + 40
 	fmt.Printf("Random speed: %f\n", gs.speed)
@@ -38,7 +38,8 @@ func gameInit(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState
 	angle := deg2Rad(randFloat32(359))
 	//gs.direction = ogre.Vector2(math.Cos(angle), math.Sin(angle))
 	//rs.orientation.fromAngleAxis(0.0, ogre.Vector3.unitZ)
-	//rs.position = ogre.Vector3.zero
+	rs.position = ogre.CreateVector3()
+	rs.position.Zero()
 	gs.mousePressed = false
 	//gs.rotation = ogre.Vector3.unitX
 	gs.rotationSpeed = 0.0

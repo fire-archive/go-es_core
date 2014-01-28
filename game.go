@@ -37,11 +37,14 @@ func gameInit(gsockets *GameThreadSockets, gs *GameState, rs *SharedRenderState)
 	gs.bounce = 25.0
 	angle := deg2Rad(randFloat32(359))
 	//gs.direction = ogre.Vector2(math.Cos(angle), math.Sin(angle))
-	//rs.orientation.fromAngleAxis(0.0, ogre.Vector3.unitZ)
+	unitZ := ogre.CreateVector3()
+	unitZ.UnitZ()
+	rs.orientation.FromAngleAxis(0.0, unitZ)
 	rs.position = ogre.CreateVector3()
 	rs.position.Zero()
 	gs.mousePressed = false
-	//gs.rotation = ogre.Vector3.unitX
+	gs.rotation = ogre.CreateVector3()
+	gs.rotation.UnitX()
 	gs.rotationSpeed = 0.0
 	gs.orientationIndex = 0
 	fmt.Printf("Random angle: %f\n", angle)

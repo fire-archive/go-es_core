@@ -3,6 +3,7 @@ package core
 import ("fmt"
 		"time"
 		"crypto/rand"
+	        "math"
 		"math/big"
 		"bytes"
 		"github.com/fire/go-ogre3d"
@@ -19,14 +20,14 @@ type GameState struct {
 	bounce float32 			// Limits of the bounce area:
 	speed float32 			// Picked a speed to bounce around at startup.
 	mousePressed bool 		// Go from mouse is pressed to click each time to change the control scheme.
-	//direction ogre.Vector2	// Direction the head is moving on the plane:
+	direction ogre.Vector2	// Direction the head is moving on the plane:
 	rotation ogre.Vector3	// Rotation axis of the head:
 	rotationSpeed float32  	// Rotation speed of the head in degrees:
 	
 	// use the last few frames of mouse input to build a smoothed angular velocity
 	orientationIndex int
 	orientationHistory[ORIENTATIONLOG] OrientationHistory
-	//smoothedAngular ogre.Vector3
+	smoothedAngular ogre.Vector3
 	smoothedAngularVelocity float32 // Degree
 }
 
@@ -36,7 +37,7 @@ func gameInit(gsockets *GameThreadSockets, gs *GameState, rs *SharedRenderState)
 	fmt.Printf("Random speed: %f\n", gs.speed)
 	gs.bounce = 25.0
 	angle := deg2Rad(randFloat32(359))
-	//gs.direction = ogre.Vector2(math.Cos(angle), math.Sin(angle))
+	gs.direction = ogre.CreateVector2FromValues(float32(math.Cos(float64(angle))), float32(math.Sin(float64(angle))))
 	unitZ := ogre.CreateVector3()
 	unitZ.UnitZ()
 	rs.orientation.FromAngleAxis(0.0, unitZ)

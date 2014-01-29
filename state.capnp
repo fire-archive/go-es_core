@@ -12,7 +12,7 @@ struct State {
 		configLookAround @3 :Bool;
 	}
 	
-	quaternion :group {
+	orientation :group {
 		w @4 :Float32;
 		x @5 :Float32;
 		y @6 :Float32;
@@ -22,6 +22,25 @@ struct State {
 	lookAround :group {
 		manipulateObject @8 :Bool;
 	}
+}
+
+struct EmittedRenderState {
+       time @0 :UInt64;
+       position :group {
+                x    @1 :Float32;                
+                y    @2 :Float32;
+       }
+       orientation :group {            
+                w    @3 :Float32;
+                x    @4 :Float32;
+                y    @5 :Float32;
+                z    @6 :Float32;
+       }
+       smoothedAngular :group {
+                x    @7 :Float32;
+                y    @8 :Float32;
+                z    @9 :Float32;
+       }
 }
 
 struct InputMouse {

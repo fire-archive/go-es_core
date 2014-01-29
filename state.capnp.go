@@ -9,7 +9,7 @@ import (
 )
 
 type State C.Struct
-type StateQuaternion State
+type StateOrientation State
 type StateLookAround State
 type State_Which uint16
 
@@ -32,15 +32,15 @@ func (s State) MouseReset() bool                     { return C.Struct(s).Get1(0
 func (s State) SetMouseReset(v bool)                 { C.Struct(s).Set16(2, 2); C.Struct(s).Set1(0, v) }
 func (s State) ConfigLookAround() bool               { return C.Struct(s).Get1(0) }
 func (s State) SetConfigLookAround(v bool)           { C.Struct(s).Set16(2, 3); C.Struct(s).Set1(0, v) }
-func (s State) Quaternion() StateQuaternion          { return StateQuaternion(s) }
-func (s StateQuaternion) W() float32                 { return math.Float32frombits(C.Struct(s).Get32(4)) }
-func (s StateQuaternion) SetW(v float32)             { C.Struct(s).Set32(4, math.Float32bits(v)) }
-func (s StateQuaternion) X() float32                 { return math.Float32frombits(C.Struct(s).Get32(8)) }
-func (s StateQuaternion) SetX(v float32)             { C.Struct(s).Set32(8, math.Float32bits(v)) }
-func (s StateQuaternion) Y() float32                 { return math.Float32frombits(C.Struct(s).Get32(12)) }
-func (s StateQuaternion) SetY(v float32)             { C.Struct(s).Set32(12, math.Float32bits(v)) }
-func (s StateQuaternion) Z() float32                 { return math.Float32frombits(C.Struct(s).Get32(16)) }
-func (s StateQuaternion) SetZ(v float32)             { C.Struct(s).Set32(16, math.Float32bits(v)) }
+func (s State) Orientation() StateOrientation        { return StateOrientation(s) }
+func (s StateOrientation) W() float32                { return math.Float32frombits(C.Struct(s).Get32(4)) }
+func (s StateOrientation) SetW(v float32)            { C.Struct(s).Set32(4, math.Float32bits(v)) }
+func (s StateOrientation) X() float32                { return math.Float32frombits(C.Struct(s).Get32(8)) }
+func (s StateOrientation) SetX(v float32)            { C.Struct(s).Set32(8, math.Float32bits(v)) }
+func (s StateOrientation) Y() float32                { return math.Float32frombits(C.Struct(s).Get32(12)) }
+func (s StateOrientation) SetY(v float32)            { C.Struct(s).Set32(12, math.Float32bits(v)) }
+func (s StateOrientation) Z() float32                { return math.Float32frombits(C.Struct(s).Get32(16)) }
+func (s StateOrientation) SetZ(v float32)            { C.Struct(s).Set32(16, math.Float32bits(v)) }
 func (s State) LookAround() StateLookAround          { return StateLookAround(s) }
 func (s StateLookAround) ManipulateObject() bool     { return C.Struct(s).Get1(1) }
 func (s StateLookAround) SetManipulateObject(v bool) { C.Struct(s).Set1(1, v) }
@@ -51,6 +51,69 @@ func NewStateList(s *C.Segment, sz int) State_List { return State_List(s.NewComp
 func (s State_List) Len() int                      { return C.PointerList(s).Len() }
 func (s State_List) At(i int) State                { return State(C.PointerList(s).At(i).ToStruct()) }
 func (s State_List) ToArray() []State              { return *(*[]State)(unsafe.Pointer(C.PointerList(s).ToArray())) }
+
+type EmittedRenderState C.Struct
+type EmittedRenderStatePosition EmittedRenderState
+type EmittedRenderStateOrientation EmittedRenderState
+type EmittedRenderStateSmoothedAngular EmittedRenderState
+
+func NewEmittedRenderState(s *C.Segment) EmittedRenderState {
+	return EmittedRenderState(s.NewStruct(48, 0))
+}
+func NewRootEmittedRenderState(s *C.Segment) EmittedRenderState {
+	return EmittedRenderState(s.NewRootStruct(48, 0))
+}
+func ReadRootEmittedRenderState(s *C.Segment) EmittedRenderState {
+	return EmittedRenderState(s.Root(0).ToStruct())
+}
+func (s EmittedRenderState) Time() uint64     { return C.Struct(s).Get64(0) }
+func (s EmittedRenderState) SetTime(v uint64) { C.Struct(s).Set64(0, v) }
+func (s EmittedRenderState) Position() EmittedRenderStatePosition {
+	return EmittedRenderStatePosition(s)
+}
+func (s EmittedRenderStatePosition) X() float32     { return math.Float32frombits(C.Struct(s).Get32(8)) }
+func (s EmittedRenderStatePosition) SetX(v float32) { C.Struct(s).Set32(8, math.Float32bits(v)) }
+func (s EmittedRenderStatePosition) Y() float32     { return math.Float32frombits(C.Struct(s).Get32(12)) }
+func (s EmittedRenderStatePosition) SetY(v float32) { C.Struct(s).Set32(12, math.Float32bits(v)) }
+func (s EmittedRenderState) Orientation() EmittedRenderStateOrientation {
+	return EmittedRenderStateOrientation(s)
+}
+func (s EmittedRenderStateOrientation) W() float32     { return math.Float32frombits(C.Struct(s).Get32(16)) }
+func (s EmittedRenderStateOrientation) SetW(v float32) { C.Struct(s).Set32(16, math.Float32bits(v)) }
+func (s EmittedRenderStateOrientation) X() float32     { return math.Float32frombits(C.Struct(s).Get32(20)) }
+func (s EmittedRenderStateOrientation) SetX(v float32) { C.Struct(s).Set32(20, math.Float32bits(v)) }
+func (s EmittedRenderStateOrientation) Y() float32     { return math.Float32frombits(C.Struct(s).Get32(24)) }
+func (s EmittedRenderStateOrientation) SetY(v float32) { C.Struct(s).Set32(24, math.Float32bits(v)) }
+func (s EmittedRenderStateOrientation) Z() float32     { return math.Float32frombits(C.Struct(s).Get32(28)) }
+func (s EmittedRenderStateOrientation) SetZ(v float32) { C.Struct(s).Set32(28, math.Float32bits(v)) }
+func (s EmittedRenderState) SmoothedAngular() EmittedRenderStateSmoothedAngular {
+	return EmittedRenderStateSmoothedAngular(s)
+}
+func (s EmittedRenderStateSmoothedAngular) X() float32 {
+	return math.Float32frombits(C.Struct(s).Get32(32))
+}
+func (s EmittedRenderStateSmoothedAngular) SetX(v float32) { C.Struct(s).Set32(32, math.Float32bits(v)) }
+func (s EmittedRenderStateSmoothedAngular) Y() float32 {
+	return math.Float32frombits(C.Struct(s).Get32(36))
+}
+func (s EmittedRenderStateSmoothedAngular) SetY(v float32) { C.Struct(s).Set32(36, math.Float32bits(v)) }
+func (s EmittedRenderStateSmoothedAngular) Z() float32 {
+	return math.Float32frombits(C.Struct(s).Get32(40))
+}
+func (s EmittedRenderStateSmoothedAngular) SetZ(v float32) { C.Struct(s).Set32(40, math.Float32bits(v)) }
+
+type EmittedRenderState_List C.PointerList
+
+func NewEmittedRenderStateList(s *C.Segment, sz int) EmittedRenderState_List {
+	return EmittedRenderState_List(s.NewCompositeList(48, 0, sz))
+}
+func (s EmittedRenderState_List) Len() int { return C.PointerList(s).Len() }
+func (s EmittedRenderState_List) At(i int) EmittedRenderState {
+	return EmittedRenderState(C.PointerList(s).At(i).ToStruct())
+}
+func (s EmittedRenderState_List) ToArray() []EmittedRenderState {
+	return *(*[]EmittedRenderState)(unsafe.Pointer(C.PointerList(s).ToArray()))
+}
 
 type InputMouse C.Struct
 

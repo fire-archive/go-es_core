@@ -252,8 +252,7 @@ func InitCore() {
 			fmt.Printf("Keyboard input sent.\n")
 				
 		case state.MouseReset():
-			is.orientation = ogre.CreateQuaternionFromValues(state.Quaternion().W(), state.Quaternion().X(),
-				state.Quaternion().Y(), state.Quaternion().Z())
+			is.orientation = ogre.CreateQuaternionFromValues(state.Orientation().W(), state.Orientation().X(),	state.Orientation().Y(), state.Orientation().Z())
 			var r ogre.Matrix3
 			is.orientation.ToRotationMatrix(&r)
 			var rfYAngle, rfPAngle, rfRAngle float32

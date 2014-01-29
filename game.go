@@ -8,7 +8,8 @@ import ("fmt"
 	"bytes"
 	"github.com/jackyb/go-sdl2/sdl"
 	"github.com/fire/go-ogre3d"
-	"github.com/jmckaskill/go-capnproto")
+	"github.com/jmckaskill/go-capnproto"
+	"github.com/op/go-nanomsg")
 
 const ORIENTATIONLOG int = 10;
 
@@ -123,6 +124,14 @@ func gameTick(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState
 			buf := bytes.Buffer{}
 			s.WriteTo(&buf)
 			gsockets.inputPush.Send(buf.Bytes(), 0)	
+			/*
+			s := capn.NewBuffer(nil)
+			renderState := NewRootRenderState(s)
+			renderState.SetMouseReset(true)			
+			buf := bytes.Buffer{}
+			s.WriteTo(&buf)
+			gsockets.renderSocket.Send(buf.Bytes(), 0)
+                        */	
 		}
 	}
 }
@@ -132,7 +141,18 @@ func randFloat32(max uint64) float32 {
 	i := big.NewInt(0)
 	r, err := rand.Int(rand.Reader, i.SetUint64(uint64(1) << 63))
 	if err != nil {
-			fmt.Printf("%s\n", err)
+		fmt.Printf("%s\n", err)
 	}	
 	return float32(float64(r.Uint64()) / float64(1 << 63) * float64(max))
+}
+
+func emitRenderState(socket *nanomsg.BusSocket, time uint64, srs *SharedRenderState) {
+/*	
+        s := capn.NewBuffer(nil)
+	renderState := NewRootRenderState(s)
+	renderState.SetMouseReset(true)			
+	buf := bytes.Buffer{}
+	s.WriteTo(&buf)
+	socket.Send(buf.Bytes(), 0)
+*/
 }

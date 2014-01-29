@@ -1,9 +1,9 @@
 package core
 
 import ("fmt"
-		"time"
-		"github.com/op/go-nanomsg"
-		"github.com/jmckaskill/go-capnproto")
+	"time"
+	"github.com/op/go-nanomsg"
+	"github.com/jmckaskill/go-capnproto")
 		
 const MAXFRAMERATE = 60 
 const GAMEDELAY = time.Duration(time.Second / MAXFRAMERATE) 
@@ -82,6 +82,7 @@ func gameThread(params GameThreadParams) (int) {
 			gameTick(&gsockets, &gs, &srs, now)
 			// Notify the render thread that a new game state is ready.
 			// On the next render frame, it will start interpolating between the previous state and this new one
+			emitRenderState(gsockets.renderSocket, uint64(baseLine) + framenum * uint64(GAMEDELAY), &srs )
 		} else {
 			ahead := time.Duration(framenum) * GAMEDELAY - (now - baseLine)
 			if ahead < 0 {

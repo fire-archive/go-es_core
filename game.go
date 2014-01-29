@@ -1,13 +1,14 @@
 package core
 
 import ("fmt"
-		"time"
-		"crypto/rand"
-	        "math"
-		"math/big"
-		"bytes"
-		"github.com/fire/go-ogre3d"
-		"github.com/jmckaskill/go-capnproto")
+	"time"
+	"crypto/rand"
+	"math"
+	"math/big"
+	"bytes"
+	"github.com/jackyb/go-sdl2/sdl"
+	"github.com/fire/go-ogre3d"
+	"github.com/jmckaskill/go-capnproto")
 
 const ORIENTATIONLOG int = 10;
 
@@ -82,7 +83,7 @@ func gameTick(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState
 	}	
 	input := ReadRootInputMouse(s)
 	orientation := ogre.CreateQuaternionFromValues(input.W(), input.X(), input.Y(), input.Z())
-	//buttons := input.Buttons()
+	buttons := input.Buttons()
 
 	// At 16 ms tick and the last 10 orientations buffered, that's 150ms worth of orientation history.
 	gs.orientationHistory[gs.orientationIndex].t = uint64(now)
@@ -105,7 +106,25 @@ func gameTick(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState
 	omega.Normalise()
 	omega.ToAngleAxisDegree(&gs.smoothedAngularVelocity, gs.smoothedAngular)
 	//  fmt.Printf("%f %f %f - %f\n", gs.smoothed_angular.X(), gs.smoothed_angular.Y(), gs.smoothed_angular.Z(), gs.smoothed_angular_velocity.valueDegrees())
-	srs.smoothAngular = gs.smoothedAngular
+	srs.smoothedAngular = gs.smoothedAngular
+
+	if (buttons & sdl.Button(sdl.BUTTON_LEFT)) != 0 {
+		if !gs.mousePressed {
+			gs.mousePressed = true
+			// changing the control scheme: the player is now driving the orientation of the head directly with the mouse
+			// tell the input logic to reset the orientation to match the current orientation of the head
+			s := capn.NewBuffer(nil)
+			state := NewRootState(s)
+			state.SetMouseReset(true)
+			state.Quaternion().SetW(srs.orientation.W())
+			state.Quaternion().SetX(srs.orientation.X())
+			state.Quaternion().SetY(srs.orientation.Y())
+			state.Quaternion().SetZ(srs.orientation.Z())			
+			buf := bytes.Buffer{}
+			s.WriteTo(&buf)
+			gsockets.inputPush.Send(buf.Bytes(), 0)	
+		}
+	}
 }
 
 // Create a random 32bit float from [1,max+1).

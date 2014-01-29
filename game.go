@@ -147,12 +147,19 @@ func randFloat32(max uint64) float32 {
 }
 
 func emitRenderState(socket *nanomsg.BusSocket, time uint64, srs *SharedRenderState) {
-/*	
         s := capn.NewBuffer(nil)
-	renderState := NewRootRenderState(s)
-	renderState.SetMouseReset(true)			
+	emitted := NewRootEmittedRenderState(s)
+	emitted.SetTime(time)
+	emitted.Position().SetX(srs.position.X())
+	emitted.Position().SetY(srs.position.Y())
+	emitted.Orientation().SetW(srs.orientation.W())
+	emitted.Orientation().SetX(srs.orientation.X())
+	emitted.Orientation().SetY(srs.orientation.Y())
+	emitted.Orientation().SetZ(srs.orientation.Z())
+	emitted.SmoothedAngular().SetX(srs.smoothedAngular.X())
+	emitted.SmoothedAngular().SetY(srs.smoothedAngular.Y())
+	emitted.SmoothedAngular().SetZ(srs.smoothedAngular.Z())
 	buf := bytes.Buffer{}
 	s.WriteTo(&buf)
 	socket.Send(buf.Bytes(), 0)
-*/
 }

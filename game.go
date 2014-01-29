@@ -59,7 +59,7 @@ func gameInit(gsockets *GameThreadSockets, gs *GameState, rs *SharedRenderState)
 	gsockets.inputPush.Send(buf.Bytes(), 0)
 }
 
-func gameTick(gs *GameState, srs *SharedRenderState, now time.Duration){
+func gameTick(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState, now time.Duration){
 	fmt.Printf("Game Tick.\n")
 }
 

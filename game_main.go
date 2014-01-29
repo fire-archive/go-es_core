@@ -29,19 +29,19 @@ func gameThread(params GameThreadParams) (int) {
 	gsockets.controlSocket, err = nanomsg.NewBusSocket()
 	if err != nil {
 		panic(err)
-    }
-    _, err = gsockets.controlSocket.Connect("tcp://127.0.0.1:60206")
-    if err != nil {
+	}
+	_, err = gsockets.controlSocket.Connect("tcp://127.0.0.1:60206")
+	if err != nil {
 		panic(err)
-    }
+	}
 	gsockets.renderSocket, err = nanomsg.NewBusSocket()
 	if err != nil {
 		panic(err)
-    }
-    _, err = gsockets.renderSocket.Bind("tcp://127.0.0.1:60210")
-    if err != nil {
+	}
+	_, err = gsockets.renderSocket.Bind("tcp://127.0.0.1:60210")
+	if err != nil {
 		panic(err)
-    }
+	}
 
 	gsockets.inputMouseSub, err = nanomsg.NewSubSocket()
 	if err != nil {
@@ -79,7 +79,7 @@ func gameThread(params GameThreadParams) (int) {
 			// NOTE: build the state of the world at t = framenum * GAME_DELAY,
 			// under normal conditions that's a time in the future
 			// (the exception to that is if we are catching up on ticking game frames)
-			gameTick(&gs, &srs, now)
+			gameTick(&gsockets, &gs, &srs, now)
 			// Notify the render thread that a new game state is ready.
 			// On the next render frame, it will start interpolating between the previous state and this new one
 		} else {

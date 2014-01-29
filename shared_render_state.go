@@ -8,6 +8,6 @@ type SharedRenderState struct {
   position ogre.Vector3
   orientation ogre.Quaternion
   // an extra vector to visualize the rotation
-  //smoothedAngular ogre.Vector3 
+  smoothedAngular ogre.Vector3 
 }
 

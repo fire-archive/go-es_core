@@ -103,7 +103,9 @@ func gameTick(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState
 	omega = omega.UnitInverse()
 	omega = omega.MultiplyScalar(float32(float64(time.Second)/float64(now - time.Duration(q1T))))
 	omega.Normalise()
-	// omega.ToAngleAxis(gs.smoothedAngularVelocity, gs.smoothedAngular)
+	omega.ToAngleAxisDegree(&gs.smoothedAngularVelocity, gs.smoothedAngular)
+	//  fmt.Printf("%f %f %f - %f\n", gs.smoothed_angular.X(), gs.smoothed_angular.Y(), gs.smoothed_angular.Z(), gs.smoothed_angular_velocity.valueDegrees())
+	srs.smoothAngular = gs.smoothedAngular
 }
 
 // Create a random 32bit float from [1,max+1).

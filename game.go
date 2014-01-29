@@ -65,12 +65,45 @@ func gameTick(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState
 
 	// Get the latest mouse buttons state and orientation.
 	s := capn.NewBuffer(nil)
-	lookAround := NewRootState(s)
-	lookAround.SetMouse(true)
+	state := NewRootState(s)
+	state.SetMouse(true)
 	buf := bytes.Buffer{}
 	s.WriteTo(&buf)
 	gsockets.inputPush.Send(buf.Bytes(), 0)
-		
+
+	b, err := gsockets.inputMouseSub.Recv(0)
+	if err != nil {
+		fmt.Printf("%s\n", err)
+	}	
+	s, _, err = capn.ReadFromMemoryZeroCopy(b)
+	if err != nil {
+		fmt.Printf("Read error %v\n", err)
+		return
+	}	
+	input := ReadRootInputMouse(s)
+	orientation := ogre.CreateQuaternionFromValues(input.W(), input.X(), input.Y(), input.Z())
+	buttons := input.Buttons()
+
+	// At 16 ms tick and the last 10 orientations buffered, that's 150ms worth of orientation history.
+	gs.orientationHistory[gs.orientationIndex].t = uint64(now)
+	gs.orientationHistory[gs.orientationIndex].o = orientation
+	gs.orientationIndex = (gs.orientationIndex + 1) % ORIENTATIONLOG
+	
+	// Oldest Orientation
+	q1Index := gs.orientationIndex
+	// NOTE: the problem with using the successive orientations to infer an angular speed,
+	// is that if the orientation is changing fast enough, this code will 'flip' the speed around
+	// e.g. this doesn't work, need to use the XY mouse data to track angular speed
+	// NOTE: uncomment the following line to use the full history, notice the 'flip' happens at much lower speed
+	q1Index = ( q1Index + ORIENTATIONLOG - 2) % ORIENTATIONLOG
+	q1 := gs.orientationHistory[q1Index].o
+	q1T := gs.orientationHistory[q1Index].t
+	omega := orientation.SubtractQuaternion(q1)
+	omega = omega.MultiplyScalar(2.0)
+	omega = omega.UnitInverse()
+	omega = omega.MultiplyScalar(float32(float64(time.Second)/float64(now - time.Duration(q1T))))
+	omega.Normalise()
+	// omega.ToAngleAxis(gs.smoothedAngularVelocity, gs.smoothedAngular)
 }
 
 // Create a random 32bit float from [1,max+1).

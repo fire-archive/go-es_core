@@ -61,6 +61,16 @@ func gameInit(gsockets *GameThreadSockets, gs *GameState, rs *SharedRenderState)
 
 func gameTick(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState, now time.Duration){
 	fmt.Printf("Game Tick.\n")
+
+	// Get the latest mouse buttons state and orientation.
+	s := capn.NewBuffer(nil)
+	lookAround := NewRootState(s)
+	lookAround.SetMouse(true)
+	buf := bytes.Buffer{}
+	s.WriteTo(&buf)
+	gsockets.inputPush.Send(buf.Bytes(), 0)
+	
+	
 }
 
 // Create a random 32bit float from [1,max+1).

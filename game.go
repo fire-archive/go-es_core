@@ -40,6 +40,7 @@ func gameInit(gsockets *GameThreadSockets, gs *GameState, rs *SharedRenderState)
 	gs.direction = ogre.CreateVector2FromValues(float32(math.Cos(float64(angle))), float32(math.Sin(float64(angle))))
 	unitZ := ogre.CreateVector3()
 	unitZ.UnitZ()
+	rs.orientation = ogre.CreateQuaternion()
 	rs.orientation.FromAngleAxis(0.0, unitZ)
 	rs.position = ogre.CreateVector3()
 	rs.position.Zero()
@@ -69,8 +70,7 @@ func gameTick(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState
 	buf := bytes.Buffer{}
 	s.WriteTo(&buf)
 	gsockets.inputPush.Send(buf.Bytes(), 0)
-	
-	
+		
 }
 
 // Create a random 32bit float from [1,max+1).

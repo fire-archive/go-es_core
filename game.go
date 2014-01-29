@@ -82,7 +82,7 @@ func gameTick(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState
 	}	
 	input := ReadRootInputMouse(s)
 	orientation := ogre.CreateQuaternionFromValues(input.W(), input.X(), input.Y(), input.Z())
-	buttons := input.Buttons()
+	//buttons := input.Buttons()
 
 	// At 16 ms tick and the last 10 orientations buffered, that's 150ms worth of orientation history.
 	gs.orientationHistory[gs.orientationIndex].t = uint64(now)

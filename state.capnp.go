@@ -52,6 +52,27 @@ func (s State_List) Len() int                      { return C.PointerList(s).Len
 func (s State_List) At(i int) State                { return State(C.PointerList(s).At(i).ToStruct()) }
 func (s State_List) ToArray() []State              { return *(*[]State)(unsafe.Pointer(C.PointerList(s).ToArray())) }
 
+type ControlScheme C.Struct
+
+func NewControlScheme(s *C.Segment) ControlScheme      { return ControlScheme(s.NewStruct(8, 0)) }
+func NewRootControlScheme(s *C.Segment) ControlScheme  { return ControlScheme(s.NewRootStruct(8, 0)) }
+func ReadRootControlScheme(s *C.Segment) ControlScheme { return ControlScheme(s.Root(0).ToStruct()) }
+func (s ControlScheme) FreeSpin() bool                 { return C.Struct(s).Get1(0) }
+func (s ControlScheme) SetFreeSpin(v bool)             { C.Struct(s).Set1(0, v) }
+
+type ControlScheme_List C.PointerList
+
+func NewControlSchemeList(s *C.Segment, sz int) ControlScheme_List {
+	return ControlScheme_List(s.NewBitList(sz))
+}
+func (s ControlScheme_List) Len() int { return C.PointerList(s).Len() }
+func (s ControlScheme_List) At(i int) ControlScheme {
+	return ControlScheme(C.PointerList(s).At(i).ToStruct())
+}
+func (s ControlScheme_List) ToArray() []ControlScheme {
+	return *(*[]ControlScheme)(unsafe.Pointer(C.PointerList(s).ToArray()))
+}
+
 type EmittedRenderState C.Struct
 type EmittedRenderStatePosition EmittedRenderState
 type EmittedRenderStateOrientation EmittedRenderState

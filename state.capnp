@@ -24,6 +24,10 @@ struct State {
 	}
 }
 
+struct ControlScheme {
+       freeSpin @0 :Bool;
+}
+
 struct EmittedRenderState {
        time @0 :UInt64;
        position :group {

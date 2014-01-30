@@ -24,7 +24,7 @@ type GameState struct {
 	mousePressed bool 		// Go from mouse is pressed to click each time to change the control scheme.
 	direction ogre.Vector2	// Direction the head is moving on the plane:
 	rotation ogre.Vector3	// Rotation axis of the head:
-	rotationSpeed float32  	// Rotation speed of the head in degrees:
+	rotationSpeed Degree  	// Rotation speed of the head in degrees:
 	
 	// use the last few frames of mouse input to build a smoothed angular velocity
 	orientationIndex int
@@ -38,8 +38,8 @@ func gameInit(gsockets *GameThreadSockets, gs *GameState, rs *SharedRenderState)
 	gs.speed = randFloat32(59) + 40
 	fmt.Printf("Random speed: %f\n", gs.speed)
 	gs.bounce = 25.0
-	angle := deg2Rad(randFloat32(359))
-	gs.direction = ogre.CreateVector2FromValues(float32(math.Cos(float64(angle))), float32(math.Sin(float64(angle))))
+	dAngle := CreateDegree(randFloat32(359))
+	gs.direction = ogre.CreateVector2FromValues(float32(math.Cos(float64(dAngle.ValueRadianFloat()))), float32(math.Sin(float64(dAngle.ValueRadianFloat()))))
 	unitZ := ogre.CreateVector3()
 	unitZ.UnitZ()
 	rs.orientation = ogre.CreateQuaternion()
@@ -49,9 +49,9 @@ func gameInit(gsockets *GameThreadSockets, gs *GameState, rs *SharedRenderState)
 	gs.mousePressed = false
 	gs.rotation = ogre.CreateVector3()
 	gs.rotation.UnitX()
-	gs.rotationSpeed = 0.0
+	gs.rotationSpeed = CreateDegree(0.0)
 	gs.orientationIndex = 0
-	fmt.Printf("Random angle: %f\n", angle)
+	fmt.Printf("Random angle: %f\n", dAngle.ValueDegreesFloat())
 	// Set the input code to manipulate an object rather than look around.
 	s := capn.NewBuffer(nil)
 	lookAround := NewRootState(s)

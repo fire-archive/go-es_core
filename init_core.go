@@ -17,9 +17,9 @@ type InputState struct {
 	yawSens float32
 	pitchSens float32
 	orientationFactor float32 // +1/-1 easy switch between look around and manipulate something
-	yaw float32 // degrees, modulo [-180,180] range
-	pitch float32 // degrees, clamped [-90,90] range
-	roll float32
+	yaw Degree // degrees, modulo [-180,180] range
+	pitch Degree // degrees, clamped [-90,90] range
+	roll Degree
 	orientation ogre.Quaternion // current orientation
 }
 
@@ -152,10 +152,10 @@ func InitCore() {
 	shutdownRequested := false
 	var is InputState
 	is.yawSens = 0.1
-	is.yaw = 0.0
+	is.yaw = CreateDegree(0.0)
 	is.pitchSens = 0.1
-	is.pitch = 0.0
-	is.roll = 0.0
+	is.pitch = CreateDegree(0.0)
+	is.roll = CreateDegree(0.0)
 	is.orientation = ogre.CreateQuaternion()
 	is.orientationFactor = -1.0 // Look around config
 
@@ -191,22 +191,22 @@ func InitCore() {
 				}
 			case *sdl.MouseMotionEvent:
 				// + when manipulating an object, - when doing a first person view .. needs to be configurable?
-				is.yaw += is.orientationFactor * is.yawSens * float32(t.XRel)
-				if is.yaw >= 0.0 {
-					is.yaw = float32(math.Mod(float64(is.yaw) + 180.0, 360.0) - 180.0)
+				is.yaw.Add(is.orientationFactor * is.yawSens * float32(t.XRel))
+				if is.yaw.ValueDegreesFloat() >= 0.0 {
+					is.yaw = CreateDegree(float32(math.Mod(float64(is.yaw.ValueDegreesFloat()) + 180.0, 360.0) - 180.0))
 				} else {
-					is.yaw = float32(math.Mod(float64(is.yaw) - 180.0, 360.0) + 180.0)
+					is.yaw = CreateDegree(float32(math.Mod(float64(is.yaw.ValueDegreesFloat()) - 180.0, 360.0) + 180.0))
 				}
 				// + when manipulating an object, - when doing a first person view .. needs to be configurable?
-				is.pitch += is.orientationFactor * is.pitchSens * float32(t.YRel)
-				if is.pitch > 90.0 {
-					is.pitch = 90.0
-				} else if ( is.pitch < -90.0 ) {
-					is.pitch = -90.0
+				is.pitch.Add(is.orientationFactor * is.pitchSens * float32(t.YRel))
+				if is.pitch.ValueDegreesFloat() > 90.0 {
+					is.pitch = CreateDegree(90.0)
+				} else if is.pitch.ValueDegreesFloat() < -90.0 {
+					is.pitch = CreateDegree(-90.0)
 				}
 				// build a quaternion of the current orientation
 				var r ogre.Matrix3
-				r.FromEulerAnglesYXZ( deg2Rad(is.yaw), deg2Rad(is.pitch), deg2Rad(is.roll)) 
+				r.FromEulerAnglesYXZ(is.yaw.ValueRadianFloat(), is.pitch.ValueRadianFloat(), is.roll.ValueRadianFloat()) 
 				is.orientation.FromRotationMatrix(r)
 			case *sdl.MouseButtonEvent:
 				fmt.Printf("SDL mouse button event:\n")
@@ -257,9 +257,12 @@ func InitCore() {
 			is.orientation.ToRotationMatrix(&r)
 			var rfYAngle, rfPAngle, rfRAngle float32
 			r.ToEulerAnglesYXZ(&rfYAngle, &rfPAngle, &rfRAngle)
-			is.yaw = rad2Deg(rfYAngle)
-			is.pitch = rad2Deg(rfPAngle)
-			is.roll = rad2Deg(rfRAngle)
+			tempYAngle := CreateRadian(rfYAngle)
+			tempPAngle := CreateRadian(rfPAngle)
+			tempRAngle := CreateRadian(rfRAngle)
+			is.yaw = tempYAngle.ValueDegrees()
+			is.pitch = tempPAngle.ValueDegrees()
+			is.roll = tempRAngle.ValueDegrees()
 		case state.ConfigLookAround():
 			if state.LookAround().ManipulateObject() {
 				fmt.Printf("Input configuration: manipulate object\n");
@@ -279,14 +282,6 @@ func InitCore() {
 		sdl.GL_MakeCurrent(window, glContext)
 	}
     waitShutdown(nnInputPull, &gameThreadParams)
-}
-
-func deg2Rad(deg float32) float32 {
-	return deg * math.Pi / 180
-}
-
-func rad2Deg (rad float32) float32 {
-	return rad * 180 / math.Pi
 }
 
 func sendShutdown(nnRenderSocket *nanomsg.Socket, nnGameSocket *nanomsg.Socket) {

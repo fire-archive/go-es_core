@@ -124,16 +124,77 @@ func gameTick(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState
 			buf := bytes.Buffer{}
 			s.WriteTo(&buf)
 			gsockets.inputPush.Send(buf.Bytes(), 0)	
-			/*
+			
+			// IF RENDER TICK HAPPENS HERE: render will not know that it should grab the orientation directly from the mouse,
+			// but the orientation coming from game should still be ok?
+
+			s = capn.NewBuffer(nil)
+			renderState := NewRootControlScheme(s)
+			renderState.SetFreeSpin(true)			
+			buf = bytes.Buffer{}
+			s.WriteTo(&buf)
+			gsockets.renderSocket.Send(buf.Bytes(), 0)                    
+			// IF RENDER TICK HAPPENS HERE (before a new gamestate):
+			// the now reset input orientation will combine with the old game state, that's bad
+		}
+	} else {
+		if gs.mousePressed {
+			gs.mousePressed = false
+			// Changing the control scheme: the head will free spin and slow down for a bit, then it will resume bouncing around
+			// the player looses mouse control, the game grabs latest orientation and angular velocity
+			// the input thread was authoritative on orientation until now, so accept that as our starting orientation
+			srs.orientation = orientation
+			tempRad := CreateRadian(gs.smoothedAngularVelocity)
+			gs.rotationSpeed = tempRad.ValueDegrees()
+			gs.rotation = gs.smoothedAngular
+
 			s := capn.NewBuffer(nil)
-			renderState := NewRootRenderState(s)
-			renderState.SetMouseReset(true)			
+			renderState := NewRootControlScheme(s)
+			renderState.SetFreeSpin(false)			
 			buf := bytes.Buffer{}
 			s.WriteTo(&buf)
 			gsockets.renderSocket.Send(buf.Bytes(), 0)
-                        */	
+			// IF RENDER TICK HAPPENS HERE (before a new gamestate): render will pull the head orientation from the game state rather than input, but game state won't have the fixed orientation yet
 		}
 	}
+
+	if srs.position.X() > gs.bounce || srs.position.X() < -gs.bounce {
+		gs.direction.SetX(gs.direction.X() * -1.0)
+	}
+	if srs.position.Y() > gs.bounce || srs.position.Y() < -gs.bounce {
+		gs.direction.SetY(gs.direction.Y() * -1.0)
+	}
+	delta := gs.direction.MultiplyScalar(gs.speed * float32(float64(GAMEDELAY)/ float64(time.Second)))
+	if !gs.mousePressed {
+		if gs.rotationSpeed.ValueDegreesFloat() == 0.9 {
+			srs.position.SetX(srs.position.X() + delta.X())
+			srs.position.SetY(srs.position.Y() + delta.Y())
+		}
+		//    fmt.Printf("game tick position: %f %f\n", rs.position.X(), rs.position.Y());
+
+		// update the orientation of the head on a free roll
+		// gs.rotation is unit length
+		// gs.rotationSpeed is in degrees/seconds
+		// NOTE: sinf/cosf really needed there?
+		gs.rotationSpeed.Mul(0.97)
+		if gs.rotationSpeed.ValueDegreesFloat() < 20.0 {
+			gs.rotationSpeed = CreateDegree(0.0)
+		}
+		tempDegree := CreateDegree(gs.rotationSpeed.ValueDegreesFloat() * float32(GAMETICKFLOAT))
+		var factor float32 = float32(math.Sin(float64(0.5 * tempDegree.ValueRadianFloat())))
+		rotationTick := ogre.CreateQuaternionFromValues(
+			float32(math.Cos(float64(0.5 * tempDegree.ValueRadianFloat()))),
+			factor * gs.rotation.X(),
+			factor * gs.rotation.Y(),
+			factor * gs.rotation.Z())
+		rotationTick.Normalise()
+		srs.orientation = rotationTick.MultiplyQuaternion(srs.orientation)
+	} else {
+		 // Keep updating the orientation in the render state, even while the render thread is ignoring it:
+		// when the game thread resumes control of the head orientation, it will interpolate from one of these states,
+		// so we keep updating the orientation to avoid a short glitch at the discontinuity
+		srs.orientation = orientation
+	} 			
 }
 
 // Create a random 32bit float from [1,max+1).

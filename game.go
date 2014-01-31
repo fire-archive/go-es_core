@@ -77,6 +77,10 @@ func gameTick(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState
 	if err != nil {
 		fmt.Printf("%s\n", err)
 	}	
+	b = bytes.TrimPrefix(b, []byte("input.mouse:"))
+	// var by bytes.Buffer
+	// by.Write(b)
+	// fmt.Printf("Bytestring START%sEND\n", by.String())
 	s, _, err = capn.ReadFromMemoryZeroCopy(b)
 	if err != nil {
 		fmt.Printf("Read error %v\n", err)

@@ -1,27 +1,29 @@
 package core
 
-import ("fmt"
-	"time"
+import (
+	"fmt"
+	"github.com/jmckaskill/go-capnproto"
 	"github.com/op/go-nanomsg"
-	"github.com/jmckaskill/go-capnproto")
-		
-const MAXFRAMERATE = 60 
-const GAMEDELAY = time.Duration(time.Second / MAXFRAMERATE) 
+	"time"
+)
+
+const MAXFRAMERATE = 60
+const GAMEDELAY = time.Duration(time.Second / MAXFRAMERATE)
 const GAMETICKFLOAT = float64(GAMEDELAY) / float64(time.Millisecond)
 
 type GameThreadSockets struct {
 	controlSocket *nanomsg.BusSocket
 	inputMouseSub *nanomsg.SubSocket
-	inputKbSub *nanomsg.SubSocket
-	inputPush *nanomsg.PushSocket
-	renderSocket *nanomsg.BusSocket
+	inputKbSub    *nanomsg.SubSocket
+	inputPush     *nanomsg.PushSocket
+	renderSocket  *nanomsg.BusSocket
 }
 
 type GameThreadParams struct {
 	start time.Time
 }
 
-func gameThread(params GameThreadParams) (int) {
+func gameThread(params GameThreadParams) int {
 	var gsockets GameThreadSockets
 	var gs GameState
 	var srs SharedRenderState
@@ -52,7 +54,7 @@ func gameThread(params GameThreadParams) (int) {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	gsockets.inputKbSub, err = nanomsg.NewSubSocket()
 	gsockets.inputKbSub.Subscribe("input.kb:")
 	if err != nil {
@@ -66,14 +68,13 @@ func gameThread(params GameThreadParams) (int) {
 	}
 	_, err = gsockets.inputPush.Connect("tcp://127.0.0.1:60209")
 
-
 	gameInit(&gsockets, &gs, &srs)
 	baseLine := time.Since(params.start)
 	var framenum uint64
 	framenum = 0
 	for true {
 		now := time.Since(params.start)
-		targetFrame := uint64 ((now - baseLine) / GAMEDELAY)
+		targetFrame := uint64((now - baseLine) / GAMEDELAY)
 		if framenum <= targetFrame {
 			framenum++
 			// NOTE: build the state of the world at t = framenum * GAME_DELAY,
@@ -82,9 +83,9 @@ func gameThread(params GameThreadParams) (int) {
 			gameTick(&gsockets, &gs, &srs, now)
 			// Notify the render thread that a new game state is ready.
 			// On the next render frame, it will start interpolating between the previous state and this new one
-			emitRenderState(gsockets.renderSocket, uint64(baseLine) + framenum * uint64(GAMEDELAY), &srs )
+			emitRenderState(gsockets.renderSocket, uint64(baseLine)+framenum*uint64(GAMEDELAY), &srs)
 		} else {
-			ahead := time.Duration(framenum) * GAMEDELAY - (now - baseLine)
+			ahead := time.Duration(framenum)*GAMEDELAY - (now - baseLine)
 			if ahead < 0 {
 				panic(fmt.Sprintf("Ahead is less than 0: %d\n", ahead))
 			}
@@ -94,13 +95,13 @@ func gameThread(params GameThreadParams) (int) {
 		b, err := gsockets.controlSocket.Recv(nanomsg.DontWait)
 		if err != nil {
 			fmt.Printf("%s\n", err)
-		}	
+		}
 		if b != nil {
 			s, _, err := capn.ReadFromMemoryZeroCopy(b)
 			if err != nil {
 				fmt.Printf("Read error %v\n", err)
 			}
-			stop := ReadRootStop(s)	
+			stop := ReadRootStop(s)
 			if stop.Stop() {
 				break
 			}

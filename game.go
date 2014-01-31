@@ -89,7 +89,7 @@ func gameTick(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState
 	if err != nil {
 		fmt.Printf("Read error %v\n", err)
 		return
-	}	
+	}
 	input := ReadRootInputMouse(s)
 	orientation := ogre.CreateQuaternionFromValues(input.W(), input.X(), input.Y(), input.Z())
 	buttons := input.Buttons()
@@ -119,7 +119,7 @@ func gameTick(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState
 	fmt.Printf("%f %f %f - %f\n", gs.smoothedAngular.X(), gs.smoothedAngular.Y(), gs.smoothedAngular.Z(), gs.smoothedAngularVelocity.ValueDegreesFloat())
 	srs.smoothedAngular = gs.smoothedAngular
 	
-
+	fmt.Printf("srs.smoothedAngular = gs.smoothedAngular\n")
 	if (buttons & sdl.Button(sdl.BUTTON_LEFT)) != 0 {
 		if !gs.mousePressed {
 			gs.mousePressed = true
@@ -233,4 +233,5 @@ func emitRenderState(socket *nanomsg.BusSocket, time uint64, srs *SharedRenderSt
 	buf := bytes.Buffer{}
 	s.WriteTo(&buf)
 	socket.Send(buf.Bytes(), 0)
+	fmt.Printf("Emitted render state.\n")
 }

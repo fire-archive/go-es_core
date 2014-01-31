@@ -51,6 +51,10 @@ func gameInit(gsockets *GameThreadSockets, gs *GameState, rs *SharedRenderState)
 	gs.rotation.UnitX()
 	gs.rotationSpeed = CreateDegree(0.0)
 	gs.orientationIndex = 0
+	for i := 0; i < ORIENTATIONLOG; i++ {
+		gs.orientationHistory[i].o = ogre.CreateQuaternion()
+	}
+	gs.smoothedAngular = ogre.CreateVector3()
 	fmt.Printf("Random angle: %f\n", dAngle.ValueDegreesFloat())
 	// Set the input code to manipulate an object rather than look around.
 	s := capn.NewBuffer(nil)

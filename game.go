@@ -30,7 +30,7 @@ type GameState struct {
 	orientationIndex int
 	orientationHistory[ORIENTATIONLOG] OrientationHistory
 	smoothedAngular ogre.Vector3
-	smoothedAngularVelocity float32 // Degree
+	smoothedAngularVelocity Degree // Degree
 }
 
 func gameInit(gsockets *GameThreadSockets, gs *GameState, rs *SharedRenderState){
@@ -105,9 +105,12 @@ func gameTick(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState
 	omega = omega.UnitInverse()
 	omega = omega.MultiplyScalar(float32(float64(time.Second)/float64(now - time.Duration(q1T))))
 	omega.Normalise()
-	omega.ToAngleAxisDegree(&gs.smoothedAngularVelocity, gs.smoothedAngular)
-	//  fmt.Printf("%f %f %f - %f\n", gs.smoothed_angular.X(), gs.smoothed_angular.Y(), gs.smoothed_angular.Z(), gs.smoothed_angular_velocity.valueDegrees())
+	var tempDeg float32
+	omega.ToAngleAxisDegree(&tempDeg, gs.smoothedAngular)
+	gs.smoothedAngularVelocity = CreateDegree(tempDeg)
+	fmt.Printf("%f %f %f - %f\n", gs.smoothedAngular.X(), gs.smoothedAngular.Y(), gs.smoothedAngular.Z(), gs.smoothedAngularVelocity.ValueDegreesFloat())
 	srs.smoothedAngular = gs.smoothedAngular
+	
 
 	if (buttons & sdl.Button(sdl.BUTTON_LEFT)) != 0 {
 		if !gs.mousePressed {
@@ -144,8 +147,7 @@ func gameTick(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState
 			// the player looses mouse control, the game grabs latest orientation and angular velocity
 			// the input thread was authoritative on orientation until now, so accept that as our starting orientation
 			srs.orientation = orientation
-			tempRad := CreateRadian(gs.smoothedAngularVelocity)
-			gs.rotationSpeed = tempRad.ValueDegrees()
+			gs.rotationSpeed = gs.smoothedAngularVelocity
 			gs.rotation = gs.smoothedAngular
 
 			s := capn.NewBuffer(nil)

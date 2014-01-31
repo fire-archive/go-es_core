@@ -64,7 +64,7 @@ func gameInit(gsockets *GameThreadSockets, gs *GameState, rs *SharedRenderState)
 	lookAround.SetConfigLookAround(true)
 	lookAround.LookAround().SetManipulateObject(true)
 	buf := bytes.Buffer{}
-	s.WriteTo(&buf)
+	s.WriteToPacked(&buf)
 	gsockets.inputPush.Send(buf.Bytes(), 0)
 }
 
@@ -76,7 +76,7 @@ func gameTick(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState
 	state := NewRootState(s)
 	state.SetMouse(true)
 	buf := bytes.Buffer{}
-	s.WriteTo(&buf)
+	s.WriteToPacked(&buf)
 	gsockets.inputPush.Send(buf.Bytes(), 0)
 
 	b, err := gsockets.inputMouseSub.Recv(0)
@@ -84,10 +84,12 @@ func gameTick(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState
 		fmt.Printf("%s\n", err)
 	}
 	b = bytes.TrimPrefix(b, []byte("input.mouse:"))
-	// var by bytes.Buffer
-	// by.Write(b)
-	// fmt.Printf("Bytestring START%sEND\n", by.String())
-	s, _, err = capn.ReadFromMemoryZeroCopy(b)
+	var bBuf bytes.Buffer
+	bBuf.Read(b)
+	r := bytes.NewReader(b)
+	fmt.Printf("Bytestring START%sEND\n", bBuf.String())
+	var rBuf bytes.Buffer 
+	s, err = capn.ReadFromPackedStream(r, &rBuf)
 	if err != nil {
 		fmt.Printf("Read error %v\n", err)
 		return
@@ -145,7 +147,7 @@ func gameTick(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState
 			renderState := NewRootControlScheme(s)
 			renderState.SetFreeSpin(true)
 			buf = bytes.Buffer{}
-			s.WriteTo(&buf)
+			s.WriteToPacked(&buf)
 			gsockets.renderSocket.Send(buf.Bytes(), 0)
 			// IF RENDER TICK HAPPENS HERE (before a new gamestate):
 			// the now reset input orientation will combine with the old game state, that's bad
@@ -164,7 +166,7 @@ func gameTick(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState
 			renderState := NewRootControlScheme(s)
 			renderState.SetFreeSpin(false)
 			buf := bytes.Buffer{}
-			s.WriteTo(&buf)
+			s.WriteToPacked(&buf)
 			gsockets.renderSocket.Send(buf.Bytes(), 0)
 			// IF RENDER TICK HAPPENS HERE (before a new gamestate): render will pull the head orientation from the game state rather than input, but game state won't have the fixed orientation yet
 		}

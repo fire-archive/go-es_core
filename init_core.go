@@ -167,7 +167,9 @@ func InitCore() {
 		if err != nil {
 			fmt.Printf("%s\n", err)
 		}
-		s, _, err := capn.ReadFromMemoryZeroCopy(b)
+		r := bytes.NewReader(b)
+		var buf bytes.Buffer 
+		s, err := capn.ReadFromPackedStream(r, &buf)
 		if err != nil {
 			fmt.Printf("Read error %v\n", err)
 			return
@@ -232,7 +234,7 @@ func InitCore() {
 			ms.SetZ(is.orientation.Z())
 			ms.SetButtons(buttons)
 			buf := bytes.Buffer{}
-			s.WriteTo(&buf)
+			s.WriteToPacked(&buf)
 			nnInputPub.Send(append([]byte("input.mouse:"), buf.Bytes()...), 0)
 			fmt.Printf("Mouse input sent.\n")
 
@@ -249,7 +251,7 @@ func InitCore() {
 			kbs.SetSpace(state[sdl.SCANCODE_SPACE] != 0)
 			kbs.SetLalt(state[sdl.SCANCODE_LALT] != 0)
 			b := bytes.Buffer{}
-			t.WriteTo(&b)
+			t.WriteToPacked(&b)
 			nnInputPub.Send(append([]byte("input.kb:"), b.Bytes()...), 0)
 			fmt.Printf("Keyboard input sent.\n")
 
@@ -291,7 +293,7 @@ func sendShutdown(nnRenderSocket *nanomsg.Socket, nnGameSocket *nanomsg.Socket) 
 	stop := NewRootStop(s)
 	stop.SetStop(true)
 	buf := bytes.Buffer{}
-	s.WriteTo(&buf)
+	s.WriteToPacked(&buf)
 	fmt.Printf("Render socket shutdown.\n")
 	nnRenderSocket.Send(buf.Bytes(), 0)
 	fmt.Printf("Game socket shutdown.\n")

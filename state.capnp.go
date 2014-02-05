@@ -52,25 +52,27 @@ func (s State_List) Len() int                      { return C.PointerList(s).Len
 func (s State_List) At(i int) State                { return State(C.PointerList(s).At(i).ToStruct()) }
 func (s State_List) ToArray() []State              { return *(*[]State)(unsafe.Pointer(C.PointerList(s).ToArray())) }
 
-type ControlScheme C.Struct
+type RenderStateMsg C.Struct
 
-func NewControlScheme(s *C.Segment) ControlScheme      { return ControlScheme(s.NewStruct(8, 0)) }
-func NewRootControlScheme(s *C.Segment) ControlScheme  { return ControlScheme(s.NewRootStruct(8, 0)) }
-func ReadRootControlScheme(s *C.Segment) ControlScheme { return ControlScheme(s.Root(0).ToStruct()) }
-func (s ControlScheme) FreeSpin() bool                 { return C.Struct(s).Get1(0) }
-func (s ControlScheme) SetFreeSpin(v bool)             { C.Struct(s).Set1(0, v) }
+func NewRenderStateMsg(s *C.Segment) RenderStateMsg      { return RenderStateMsg(s.NewStruct(8, 0)) }
+func NewRootRenderStateMsg(s *C.Segment) RenderStateMsg  { return RenderStateMsg(s.NewRootStruct(8, 0)) }
+func ReadRootRenderStateMsg(s *C.Segment) RenderStateMsg { return RenderStateMsg(s.Root(0).ToStruct()) }
+func (s RenderStateMsg) HeadTrigger() bool               { return C.Struct(s).Get1(1) }
+func (s RenderStateMsg) SetHeadTrigger(v bool)           { C.Struct(s).Set1(1, v) }
+func (s RenderStateMsg) FreeSpin() bool                  { return C.Struct(s).Get1(0) }
+func (s RenderStateMsg) SetFreeSpin(v bool)              { C.Struct(s).Set1(0, v) }
 
-type ControlScheme_List C.PointerList
+type RenderStateMsg_List C.PointerList
 
-func NewControlSchemeList(s *C.Segment, sz int) ControlScheme_List {
-	return ControlScheme_List(s.NewBitList(sz))
+func NewRenderStateMsgList(s *C.Segment, sz int) RenderStateMsg_List {
+	return RenderStateMsg_List(s.NewUInt8List(sz))
 }
-func (s ControlScheme_List) Len() int { return C.PointerList(s).Len() }
-func (s ControlScheme_List) At(i int) ControlScheme {
-	return ControlScheme(C.PointerList(s).At(i).ToStruct())
+func (s RenderStateMsg_List) Len() int { return C.PointerList(s).Len() }
+func (s RenderStateMsg_List) At(i int) RenderStateMsg {
+	return RenderStateMsg(C.PointerList(s).At(i).ToStruct())
 }
-func (s ControlScheme_List) ToArray() []ControlScheme {
-	return *(*[]ControlScheme)(unsafe.Pointer(C.PointerList(s).ToArray()))
+func (s RenderStateMsg_List) ToArray() []RenderStateMsg {
+	return *(*[]RenderStateMsg)(unsafe.Pointer(C.PointerList(s).ToArray()))
 }
 
 type EmittedRenderState C.Struct

@@ -144,7 +144,8 @@ func gameTick(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState
 			// but the orientation coming from game should still be ok?
 
 			s = capn.NewBuffer(nil)
-			renderState := NewRootControlScheme(s)
+			renderState := NewRootRenderStateMsg(s)
+			renderState.SetHeadTrigger(true)
 			renderState.SetFreeSpin(true)
 			buf = bytes.Buffer{}
 			s.WriteToPacked(&buf)
@@ -163,7 +164,8 @@ func gameTick(gsockets *GameThreadSockets, gs *GameState, srs *SharedRenderState
 			gs.rotation = gs.smoothedAngular
 
 			s := capn.NewBuffer(nil)
-			renderState := NewRootControlScheme(s)
+			renderState := NewRootRenderStateMsg(s)
+			renderState.SetHeadTrigger(true)
 			renderState.SetFreeSpin(false)
 			buf := bytes.Buffer{}
 			s.WriteToPacked(&buf)

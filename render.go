@@ -12,7 +12,7 @@ type RenderState struct {
 	rotationVectorNode *ogre.SceneNode
 }
 
-func parseRenderState(rs *RenderState, srs *SharedRenderState, b *[]byte) {
+func parseRenderState(rs *RenderState, srs *SharedRenderState, b *[]byte) {	
 	// Stuff
 }
 

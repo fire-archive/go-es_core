@@ -24,7 +24,8 @@ struct State {
 	}
 }
 
-struct ControlScheme {
+struct RenderStateMsg {
+       headTrigger @1 :Bool;
        freeSpin @0 :Bool;
 }
 

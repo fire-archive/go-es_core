@@ -65,7 +65,7 @@ func renderInit(params *RenderThreadParams, rs *RenderState, srs *SharedRenderSt
 	zero := ogre.CreateVector3()
 	zero.Zero()
 	rs.headNode = rootNode.CreateChildSceneNode("head_node", zero , ogre.CreateQuaternion())
-	//rs.headNode.AttachObject(head)
+	rs.headNode.AttachObject(ogre.GetEntityBase(head))
 	light := scene.CreateLight("light")
 	light.SetPosition(20.0, 80.0, 50.0)
 	cam := scene.CreateCamera("cam")

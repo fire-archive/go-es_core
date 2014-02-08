@@ -67,7 +67,13 @@ func renderThread(params RenderThreadParams) {
 	srsIndex := uint(0)
 	srs[1].gameTime = 0
 	srs[0].gameTime = srs[1].gameTime
-
+	srs[1].position = ogre.CreateVector3()
+	srs[1].position.Zero()
+	srs[0].position = ogre.CreateVector3()
+	srs[0].position.Zero()
+	srs[1].orientation = ogre.CreateQuaternion()
+	srs[0].orientation = ogre.CreateQuaternion()
+	
 	renderInit(&params, &rs, &srs[0])
 
 	for true {

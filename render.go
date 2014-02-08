@@ -60,7 +60,7 @@ func renderInit(params *RenderThreadParams, rs *RenderState, srs *SharedRenderSt
 
 	scene := params.root.CreateSceneManager("DefaultSceneManager", "SimpleStaticCheck")
 	scene.SetAmbientLight(0.5, 0.5, 0.5)
-	head := scene.CreateEntity("head", "ogre.mesh", "head_group")
+	head := scene.CreateEntity("head", "ogre.mesh", ogre.AUTODETECT_RESOURCE_GROUP_NAME())
 	rootNode := scene.GetRootSceneNode()
 	zero := ogre.CreateVector3()
 	zero.Zero()
@@ -80,7 +80,7 @@ func renderInit(params *RenderThreadParams, rs *RenderState, srs *SharedRenderSt
 	
 	rs.rotationVectorObj = scene.CreateManualObject("rotation_vector")
 	rs.rotationVectorObj.SetDynamic(true)
-	rs.rotationVectorObj.Begin("BaseWhiteNoLighting", ogre.OT_LINE_LIST, "head")
+	rs.rotationVectorObj.Begin("BaseWhiteNoLighting", ogre.OT_LINE_LIST, ogre.DEFAULT_RESOURCE_GROUP_NAME())
 	rs.rotationVectorObj.Position(0.0, 0.0, 0.0)
 	rs.rotationVectorObj.Position(0.0, 0.0, 0.0)
 	rs.rotationVectorObj.Position(0.0, 0.0, 0.0)

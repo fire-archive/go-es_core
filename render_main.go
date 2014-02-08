@@ -2,7 +2,6 @@ package core
 
 import (
 	"fmt"
-	"bytes"
 	"github.com/fire/go-ogre3d"
 	"github.com/jackyb/go-sdl2/sdl"
 	"github.com/jmckaskill/go-capnproto"
@@ -77,9 +76,7 @@ func renderThread(params RenderThreadParams) {
 			fmt.Printf("%s\n", err)
 		}
 		if b != nil {
-			r := bytes.NewReader(b)
-			var buf bytes.Buffer 
-			s, err := capn.ReadFromPackedStream(r, &buf)
+			s, _, err := capn.ReadFromMemoryZeroCopy(b)
 			if err != nil {
 				fmt.Printf("Read error %v\n", err)
 			}

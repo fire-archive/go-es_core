@@ -2,7 +2,6 @@ package core
 
 import (
 	"fmt"
-	"bytes"
 	"github.com/jmckaskill/go-capnproto"
 	"github.com/op/go-nanomsg"
 	"time"
@@ -98,9 +97,7 @@ func gameThread(params GameThreadParams) int {
 			fmt.Printf("%s\n", err)
 		}
 		if b != nil {
-			r := bytes.NewReader(b)
-			var buf bytes.Buffer 
-			s, err := capn.ReadFromPackedStream(r, &buf)
+			s, _, err := capn.ReadFromMemoryZeroCopy(b)
 			if err != nil {
 				fmt.Printf("Read error %v\n", err)
 			}

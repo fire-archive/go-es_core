@@ -58,7 +58,7 @@ func renderInit(params *RenderThreadParams, rs *RenderState, srs *SharedRenderSt
 
 	mgr.InitialiseAllResourceGroups()
 
-	scene := params.root.CreateSceneManager("ST_GENERIC", "SimpleStaticCheck")
+	scene := params.root.CreateSceneManager("DefaultSceneManager", "SimpleStaticCheck")
 	scene.SetAmbientLight(0.5, 0.5, 0.5)
 	head := scene.CreateEntity("head", "ogre.mesh", "head_group")
 	rootNode := scene.GetRootSceneNode()

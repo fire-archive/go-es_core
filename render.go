@@ -60,7 +60,7 @@ func renderInit(params *RenderThreadParams, rs *RenderState, srs *SharedRenderSt
 
 	scene := params.root.CreateSceneManager("DefaultSceneManager", "SimpleStaticCheck")
 	scene.SetAmbientLight(0.5, 0.5, 0.5)
-	head := scene.CreateEntity("head", "ogre.mesh", ogre.AUTODETECT_RESOURCE_GROUP_NAME())
+	head := scene.CreateEntity("head", "ogrehead.mesh", ogre.AUTODETECT_RESOURCE_GROUP_NAME())
 	rootNode := scene.GetRootSceneNode()
 	zero := ogre.CreateVector3()
 	zero.Zero()

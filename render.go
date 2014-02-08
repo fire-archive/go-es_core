@@ -10,7 +10,7 @@ import (
 type RenderState struct {
 	mouseControl bool
 	headNode     ogre.SceneNode
-	//rotationVectorObj ogre.ManualObject
+	rotationVectorObj ogre.ManualObject
 	rotationVectorNode ogre.SceneNode
 }
 
@@ -78,16 +78,17 @@ func renderInit(params *RenderThreadParams, rs *RenderState, srs *SharedRenderSt
 	
 	cam.SetAspectRatio(viewport.GetActualWidth(), viewport.GetActualHeight())
 	
-	//rs.rotationVectorObj := scene.CreateManualObject("rotation_vector")
-	//rs.rotationVectorObj.SetDynamic(true)
-	//rs.rotatiobVectorObj.Begin("BaseWhiteNoLighting", ogre.OT_LINE_LIST)
-	//rs.rotationVectorObj.Position(0.0, 0.0, 0.0)
-	//rs.rotationVectorObj.Position(0.0, 0.0, 0.0)
-	//rs.rotationVectorObj.Position(0.0, 0.0, 0.0)
-	//rs.rotationVectorObj.End()
-	//rs.rotationVectorNode := scene.GetSceneNode.CreateChildSceneNode("rotation_vector_node)
-	//rs.rotationVectorNode.AttachObject(rs.rotationVectorObj)
-	//rs.rotationVectorNode.SetVisible(false)
+	rs.rotationVectorObj = scene.CreateManualObject("rotation_vector")
+	rs.rotationVectorObj.SetDynamic(true)
+	rs.rotationVectorObj.Begin("BaseWhiteNoLighting", ogre.OT_LINE_LIST, "head")
+	rs.rotationVectorObj.Position(0.0, 0.0, 0.0)
+	rs.rotationVectorObj.Position(0.0, 0.0, 0.0)
+	rs.rotationVectorObj.Position(0.0, 0.0, 0.0)
+	rs.rotationVectorObj.End()
+	rot := scene.GetRootSceneNode()
+	rs.rotationVectorNode = rot.CreateChildSceneNode("rotation_vector_node", zero, ogre.CreateQuaternion())
+	rs.rotationVectorNode.AttachObject(ogre.GetManualObjectBase(rs.rotationVectorObj))
+	rs.rotationVectorNode.SetVisible(false)
 }
 
 func interpolateAndRender(rsockets *RenderThreadSockets, rs *RenderState,
@@ -123,17 +124,16 @@ func interpolateAndRender(rsockets *RenderThreadSockets, rs *RenderState,
 		input := ReadRootInputMouse(s)
 		orientation := ogre.CreateQuaternionFromValues(input.W(), input.X(), input.Y(), input.Z())
 		// Use latest mouse data to orient the head.
-		//rs.headNode.SetOrientation(orientation)
+		rs.headNode.SetOrientation(orientation)
 		// Update the rotation axis of the head (smoothed over a few frames in the game thread)
-		/*rs.rotationVectorObj.BeginUpdate(0)
-		rs.rotationVectorObj.Position(interpPosition)
+		rs.rotationVectorObj.BeginUpdate(0)
+		rs.rotationVectorObj.Position(interpPosition.X(), interpPosition.Y(), interpPosition.Z())
 		temp := previousRender.smoothedAngular.MultiplyScalar(1.0 - ratio)
-		interpSmoothedAngular := temp.AddVector3(nextRender.smoothedAngular.AddScalar(ratio))
+		interpSmoothedAngular := temp.AddVector3(nextRender.smoothedAngular.MultiplyScalar(ratio))
 		rotationVectorEnd := interpPosition.AddVector3(interpSmoothedAngular.MultiplyScalar(40.0))
-		rotationVectorObj.Position(RotationVectorEnd)
+		rs.rotationVectorObj.Position(rotationVectorEnd.X(), rotationVectorEnd.Y(), rotationVectorEnd.Z())
 		rs.rotationVectorObj.End()
-                */
 	} else {
-		//rs.headNode.SetOrientation(ogre.Quaternion.Slerp(ratio, previousRender.orientation, nextRender.orientation))
-	}	
-}
+		rs.headNode.SetOrientation(ogre.QuaternionSlerp(ratio, previousRender.orientation, nextRender.orientation, false))
+	}	}
+

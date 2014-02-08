@@ -101,7 +101,7 @@ func renderThread(params RenderThreadParams) {
 				break
 			}
 
-			srsIndex ^= 1
+			srsIndex = srsIndex ^ 1
 			parseRenderState(&rs, &srs[srsIndex], &b)
 		}
 		// Skip rendering until enough data has come in to support interpolation

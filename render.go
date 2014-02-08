@@ -15,9 +15,7 @@ type RenderState struct {
 }
 
 func parseRenderState(rs *RenderState, srs *SharedRenderState, b *[]byte) {	
-	var buf bytes.Buffer 
-	r := bytes.NewReader(*b)
-	s, err := capn.ReadFromPackedStream(r, &buf)
+	s, _, err := capn.ReadFromMemoryZeroCopy(*b)
 	if err != nil {
 		fmt.Printf("Read error %v\n", err)
 		return
@@ -101,7 +99,7 @@ func interpolateAndRender(rsockets *RenderThreadSockets, rs *RenderState,
 		inputMouse := NewRootState(t)
 		inputMouse.SetMouse(true)
 		buf := bytes.Buffer{}
-		t.WriteToPacked(&buf)
+		t.WriteTo(&buf)
 		rsockets.inputPush.Send(buf.Bytes(), 0)
 		fmt.Printf("Render mouse_state requested\n")
 
@@ -111,11 +109,8 @@ func interpolateAndRender(rsockets *RenderThreadSockets, rs *RenderState,
 		}
 		b = bytes.TrimPrefix(b, []byte("input.mouse:"))
 		var bBuf bytes.Buffer
-		bBuf.Read(b)
-		r := bytes.NewReader(b)
 		fmt.Printf("Bytestring START%sEND\n", bBuf.String())
-		var rBuf bytes.Buffer 
-		s, err := capn.ReadFromPackedStream(r, &rBuf)
+		s, _, err := capn.ReadFromMemoryZeroCopy(b)
 		if err != nil {
 			fmt.Printf("Read error %v\n", err)
 			return

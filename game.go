@@ -237,7 +237,7 @@ func emitRenderState(socket *nanomsg.BusSocket, time uint64, srs *SharedRenderSt
 	emitted.SmoothedAngular().SetY(srs.smoothedAngular.Y())
 	emitted.SmoothedAngular().SetZ(srs.smoothedAngular.Z())
 	buf := bytes.Buffer{}
-	s.WriteTo(&buf)
+	s.WriteToPacked(&buf)
 	socket.Send(buf.Bytes(), 0)
 	fmt.Printf("Emitted render state.\n")
 }
